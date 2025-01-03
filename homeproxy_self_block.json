@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain_suffix": [
+        "91selfie.com",
+        "adtng.com",
+        "img-x.jd.com",
+        "mobads.baidu.com"
+      ]
+    }
+  ]
+}
