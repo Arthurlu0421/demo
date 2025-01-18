@@ -13,6 +13,11 @@
         "gdt.qq.com",
         "bgg.baidu.com"
       ]
+    },
+    {
+      "port": [
+        21114
+      ]
     }
   ]
 }
