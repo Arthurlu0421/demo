@@ -3,17 +3,25 @@
   "rules": [
     {
       "domain_suffix": [
-        "gimy.tv",
-        "gimy.ai",
+        "gimy.app",
         "gimy.is",
-        "gimy.new",
-        "lz-cdn14.com"
+        "gimy.ai",
+        "gimy.tv",
+        "office365.com",
+        "microsoft.com"
       ]
     },
     {
       "ip_cidr": [
-        "124.156.142.24",
-        "192.69.90.9"
+        "192.69.90.9",
+        "124.156.142.24"
+      ]
+    },
+    {
+      "domain_keyword": [
+        "gimy",
+        "cdn",
+        "cloudflare"
       ]
     }
   ]
