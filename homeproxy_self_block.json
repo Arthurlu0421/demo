@@ -2,8 +2,16 @@
   "version": 1,
   "rules": [
     {
+      "domain": [
+        "fans.91selfie.com",
+        "333bbb777bbb.com",
+        "jads.co"
+      ]
+    },
+    {
       "domain_suffix": [
         "91selfie.com",
+        "jads.co",
         "adtng.com",
         "img-x.jd.com",
         "mobads.baidu.com",
