@@ -1,1 +1,16 @@
 
+# NAME: verge_self_direct
+payload:
+  - DOMAIN-SUFFIX,apple.com
+  - DOMAIN-SUFFIX,dingtalkapps.com
+  - DOMAIN-SUFFIX,office365.com
+  - DOMAIN-SUFFIX,skype.com
+  - DOMAIN-SUFFIX,microsoft.com
+  - DOMAIN-SUFFIX,windows.com
+  - DOMAIN-SUFFIX,apple.com
+  - DOMAIN-SUFFIX,sharepoint.com
+  - DOMAIN-SUFFIX,office.net
+  - DOMAIN-SUFFIX,appcenter.ms
+  - DOMAIN-SUFFIX,windows.net
+  - DOMAIN-SUFFIX,live.com
+  - DOMAIN-SUFFIX,outlook.com
