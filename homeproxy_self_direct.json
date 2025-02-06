@@ -10,13 +10,23 @@
         "office365.com",
         "outlook.office365.com",
         "microsoft.com",
+        "windows.com",
+        "office.net",
+        "cloud.microsoft",
+        "sharepoint.com",
+        "appcenter.ms",
+        "dingtalkapp.com",
         "dingtalk.com"
       ]
     },
     {
       "ip_cidr": [
         "192.69.90.9",
-        "124.156.142.24"
+        "199.193.125.161",
+        "131.186.39.72",
+        "150.230.99.50",
+        "124.156.142.24",
+        "148.135.22.55"
       ]
     },
     {
