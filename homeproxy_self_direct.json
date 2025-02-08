@@ -33,7 +33,8 @@
     {
       "domain_keyword": [
         "gimy",
-        "cdn"
+        "cdn"，
+        "cloudflare"
       ]
     }
   ]
