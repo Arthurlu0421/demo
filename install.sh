@@ -94,7 +94,7 @@ install_pkgs() {
 install_shortcut() {
   cat > /root/sing-box/sb.sh << EOF
 #!/usr/bin/env bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/Arthurlu0421-update-tag/install.sh) \$1
+bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/install.sh) \$1
 EOF
   chmod +x /root/sing-box/sb.sh
   ln -sf /root/sing-box/sb.sh /usr/bin/sb
