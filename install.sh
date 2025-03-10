@@ -94,7 +94,7 @@ install_pkgs() {
 install_shortcut() {
   cat > /root/sing-box/sb.sh << EOF
 #!/usr/bin/env bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/install.sh) \$1
+bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/Arthurlu0421-update-tag/install.sh) \$1
 EOF
   chmod +x /root/sing-box/sb.sh
   ln -sf /root/sing-box/sb.sh /usr/bin/sb
@@ -235,7 +235,7 @@ modify_port() {
 # client configuration
 show_client_configuration() {
   server_ip=$(grep -o "SERVER_IP='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
-  reality_tag="${prefix_tag_ip}-Reality"
+  reality_tag="${prefix_tag_ip}-reality"
   public_key=$(grep -o "PUBLIC_KEY='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
   reality_port=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .listen_port' /root/sing-box/sb_config_server.json)
   reality_uuid=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .users[0].uuid' /root/sing-box/sb_config_server.json)
@@ -442,7 +442,7 @@ cat << EOF
                 "♻️ 自动选择",
                 "🎯 全球直连",
                 "$reality_tag",
-                "$hy2_tag"
+                "$"
             ],
             "default": "🚀 节点选择"
         },
@@ -453,7 +453,7 @@ cat << EOF
                 "♻️ 自动选择",
                 "🎯 全球直连",
                 "$reality_tag",
-                "$hy2_tag"
+                "$"
             ],
             "default": "🚀 节点选择"
         },
@@ -483,7 +483,7 @@ cat << EOF
             "type": "hysteria2",
             "server": "$server_ip",
             "server_port": $hy2_port,
-            "tag": ""$hy2_tag"",
+            "tag": "$hy2_tag",
             "password": "$hy2_password",
             "tls": {
                 "enabled": true,
@@ -1710,7 +1710,7 @@ country_to_flag() {
     SG) echo -n "🇸🇬" ;;  # 新加坡
     DE) echo -n "🇩🇪" ;;  # 德国
     KR) echo -n "🇰🇷" ;;  # 韩国
-    TW) echo -n "🇨🇳" ;;  # 中国台湾
+	TW) echo -n "🇨🇳" ;;  # 中国台湾
     GB|UK) echo -n "🇬🇧" ;; # 英国
     *) echo -n "" ;;       # 其他不显示国旗
   esac
