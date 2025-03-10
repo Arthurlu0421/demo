@@ -235,12 +235,13 @@ modify_port() {
 # client configuration
 show_client_configuration() {
   server_ip=$(grep -o "SERVER_IP='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
+  reality_tag="${prefix_tag_ip}-Reality"
   public_key=$(grep -o "PUBLIC_KEY='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
   reality_port=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .listen_port' /root/sing-box/sb_config_server.json)
   reality_uuid=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .users[0].uuid' /root/sing-box/sb_config_server.json)
   reality_server_name=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .tls.server_name' /root/sing-box/sb_config_server.json)
   short_id=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .tls.reality.short_id[0]' /root/sing-box/sb_config_server.json)
-  reality_link="vless://$reality_uuid@$server_ip:$reality_port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$reality_server_name&fp=chrome&pbk=$public_key&sid=$short_id&type=tcp&headerType=none#SING-BOX-REALITY"
+  reality_link="vless://$reality_uuid@$server_ip:$reality_port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$reality_server_name&fp=chrome&pbk=$public_key&sid=$short_id&type=tcp&headerType=none#$reality_tag"
   echo ""
   show_notice "VISION_REALITY 通用链接 二维码 通用参数" 
   echo ""
@@ -264,19 +265,20 @@ show_client_configuration() {
 
   # hy2
   hy2_port=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .listen_port' /root/sing-box/sb_config_server.json)
+  hy2_tag="${prefix_tag_ip}-Hy2"
   hy2_server_name=$(grep -o "hy2_server_name='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
   hy2_password=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .users[0].password' /root/sing-box/sb_config_server.json)
   ishopping=$(grep '^HY2_HOPPING=' /root/sing-box/config | cut -d'=' -f2)
   if [ "$ishopping" = "FALSE" ]; then
-      hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name#SING-BOX-HYSTERIA2"
+      hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name#$hy2_tag"
   else
       hopping_range=$(iptables -t nat -L -n -v | grep "udp" | grep -oP 'dpts:\K\d+:\d+' || ip6tables -t nat -L -n -v | grep "udp" | grep -oP 'dpts:\K\d+:\d+')
       if [ -z "$hopping_range" ]; then
           warning "端口跳跃已开启却未找到端口范围。"
-          hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name#SING-BOX-HYSTERIA2"
+          hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name#$hy2_tag"
       else
           formatted_range=$(echo "$hopping_range" | sed 's/:/-/')
-          hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name&mport=${hy2_port},${formatted_range}#SING-BOX-HYSTERIA2"
+          hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name&mport=${hy2_port},${formatted_range}#$hy2_tag"
       fi
   fi
   echo ""
@@ -407,8 +409,8 @@ cat << EOF
             "outbounds": [
                 "♻️ 自动选择",
                 "🎯 全球直连",
-                "sing-box-reality",
-                "sing-box-hysteria2"
+                "$reality_tag",
+                "$hy2_tag"
             ]
         },
         {
@@ -417,8 +419,8 @@ cat << EOF
             "outbounds": [
                 "♻️ 自动选择",
                 "🎯 全球直连",
-                "sing-box-reality",
-                "sing-box-hysteria2"
+                "$reality_tag",
+                "$hy2_tag"
             ],
             "default": "🚀 节点选择"
         },
@@ -428,8 +430,8 @@ cat << EOF
             "outbounds": [
                 "♻️ 自动选择",
                 "🎯 全球直连",
-                "sing-box-reality",
-                "sing-box-hysteria2"
+                "$reality_tag",
+                "$hy2_tag"
             ],
             "default": "🚀 节点选择"
         },
@@ -439,8 +441,8 @@ cat << EOF
             "outbounds": [
                 "♻️ 自动选择",
                 "🎯 全球直连",
-                "sing-box-reality",
-                "sing-box-hysteria2"
+                "$reality_tag",
+                "$hy2_tag"
             ],
             "default": "🚀 节点选择"
         },
@@ -450,14 +452,14 @@ cat << EOF
             "outbounds": [
                 "♻️ 自动选择",
                 "🎯 全球直连",
-                "sing-box-reality",
-                "sing-box-hysteria2"
+                "$reality_tag",
+                "$hy2_tag"
             ],
             "default": "🚀 节点选择"
         },
         {
             "type": "vless",
-            "tag": "sing-box-reality",
+            "tag": "$reality_tag",
             "uuid": "$reality_uuid",
             "flow": "xtls-rprx-vision",
             "packet_encoding": "xudp",
@@ -481,7 +483,7 @@ cat << EOF
             "type": "hysteria2",
             "server": "$server_ip",
             "server_port": $hy2_port,
-            "tag": "sing-box-hysteria2",
+            "tag": ""$hy2_tag"",
             "password": "$hy2_password",
             "tls": {
                 "enabled": true,
@@ -496,8 +498,8 @@ cat << EOF
             "tag": "♻️ 自动选择",
             "type": "urltest",
             "outbounds": [
-                "sing-box-reality",
-                "sing-box-hysteria2"
+                "$reality_tag",
+                "$hy2_tag"
             ],
             "url": "http://www.gstatic.com/generate_204",
             "interval": "10m",
@@ -508,8 +510,8 @@ cat << EOF
             "type": "selector",
             "outbounds": [
                 "🚀 节点选择",
-                "sing-box-reality",
-                "sing-box-hysteria2",
+                "$reality_tag",
+                "$hy2_tag",
                 "♻️ 自动选择"
             ],
             "default": "🚀 节点选择"
@@ -1560,7 +1562,7 @@ disable_hy2hopping(){
 }
 
 #--------------------------------
-print_with_delay "Reality Hysteria2 二合一脚本 by Arthur" 0.01
+print_with_delay "Reality Hysteria2 二合一脚本 by Arthur" 0.03
 echo ""
 echo ""
 install_pkgs
@@ -1695,6 +1697,45 @@ echo ""
 echo ""
 #get ip
 server_ip=$(curl -s4m8 ip.sb -k) || server_ip=$(curl -s6m8 ip.sb -k)
+
+#get prefix_tag
+country_to_flag() {
+  case "$1" in
+    US) echo -n "🇺🇸" ;;  # 美国
+    CN) echo -n "🇨🇳" ;;  # 中国
+    JP) echo -n "🇯🇵" ;;  # 日本
+    HK) echo -n "🇭🇰" ;;  # 香港
+    TW) echo -n "🇨🇳" ;;  # 台湾
+    RU) echo -n "🇷🇺" ;;  # 俄罗斯
+    SG) echo -n "🇸🇬" ;;  # 新加坡
+    DE) echo -n "🇩🇪" ;;  # 德国
+    KR) echo -n "🇰🇷" ;;  # 韩国
+    TW) echo -n "🇨🇳" ;;  # 中国台湾
+    GB|UK) echo -n "🇬🇧" ;; # 英国
+    *) echo -n "" ;;       # 其他不显示国旗
+  esac
+}
+
+# 使用 ip-api.com 获取中文国家名
+country_info=$(curl -sL "http://ip-api.com/json/$server_ip?fields=status,country,countryCode&lang=zh-CN")
+status=$(echo "$country_info" | jq -r .status)
+
+if [ "$status" = "success" ]; then
+  country_name_zh=$(echo "$country_info" | jq -r .country)  # 直接获取中文国家名
+  country_code=$(echo "$country_info" | jq -r .countryCode)
+  flag=$(country_to_flag "$country_code")
+  prefix_tag="$flag ${country_name_zh}节点"
+else
+  prefix_tag="未知地区节点"
+fi
+# 提取 IP 第一个字段
+ip_first=$(echo "$server_ip" | awk -F '.' '{print $1}')
+
+prefix_tag_ip="${prefix_tag}-${ip_first}"
+#echo "合并后的标签: $prefix_tag_ip"
+
+
+
 
 #generate config
 cat > /root/sing-box/config <<EOF
