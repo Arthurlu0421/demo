@@ -321,7 +321,7 @@ cat << EOF
     "experimental": {
         "clash_api": {
             "external_controller": "127.0.0.1:9090",
-			"external_ui": "ui",
+            "external_ui": "ui",
             "secret": "",
             "external_ui_download_url": "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip",
             "external_ui_download_detour": "🚀 节点选择",
@@ -409,18 +409,18 @@ cat << EOF
             "outbounds": [
                 "$reality_tag",
                 "$hy2_tag",
-				"♻️ 自动选择"
+                "♻️ 自动选择"
             ]
         },
         {
             "tag": "👨‍💻 Github",
             "type": "selector",
             "outbounds": [
-				"🚀 节点选择",
+                "🚀 节点选择",
                 "🎯 全球直连",
                 "$reality_tag",
                 "$hy2_tag",
-				"♻️ 自动选择"
+                "♻️ 自动选择"
             ],
             "default": "🚀 节点选择"
         },
@@ -428,11 +428,11 @@ cat << EOF
             "tag": "🪟 Microsoft",
             "type": "selector",
             "outbounds": [
-				"🚀 节点选择",
+                "🚀 节点选择",
                 "🎯 全球直连",
                 "$reality_tag",
                 "$hy2_tag",
-				"♻️ 自动选择"
+                "♻️ 自动选择"
             ],
             "default": "🎯 全球直连"
         },
@@ -440,11 +440,11 @@ cat << EOF
             "tag": "🍏 Apple",
             "type": "selector",
             "outbounds": [
-				"🚀 节点选择",
+                "🚀 节点选择",
                 "🎯 全球直连",
                 "$reality_tag",
                 "$hy2_tag",
-				"♻️ 自动选择"
+                "♻️ 自动选择"
             ],
             "default": "🎯 全球直连"
         },
@@ -452,17 +452,17 @@ cat << EOF
             "tag": "🐠 漏网之鱼",
             "type": "selector",
             "outbounds": [
-				"🚀 节点选择",
+                "🚀 节点选择",
                 "🎯 全球直连",
                 "$reality_tag",
                 "$hy2_tag",
-				"♻️ 自动选择"
+                "♻️ 自动选择"
             ],
             "default": "🚀 节点选择"
         },
         {
             "tag": "$reality_tag",
-			"type": "vless",
+            "type": "vless",
             "uuid": "$reality_uuid",
             "flow": "xtls-rprx-vision",
             "packet_encoding": "xudp",
@@ -1713,7 +1713,7 @@ country_to_flag() {
     SG) echo -n "🇸🇬" ;;  # 新加坡
     DE) echo -n "🇩🇪" ;;  # 德国
     KR) echo -n "🇰🇷" ;;  # 韩国
-	TW) echo -n "🇨🇳" ;;  # 中国台湾
+    TW) echo -n "🇨🇳" ;;  # 中国台湾
     GB|UK) echo -n "🇬🇧" ;; # 英国
     *) echo -n "" ;;       # 其他不显示国旗
   esac
