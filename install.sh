@@ -235,7 +235,8 @@ modify_port() {
 # client configuration
 show_client_configuration() {
   server_ip=$(grep -o "SERVER_IP='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
-  reality_tag="${prefix_tag_ip}-Reality"
+  prefix_tag=$(prefix_tag_ip)
+  reality_tag="${prefix_tag}-Reality"
   public_key=$(grep -o "PUBLIC_KEY='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
   reality_port=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .listen_port' /root/sing-box/sb_config_server.json)
   reality_uuid=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .users[0].uuid' /root/sing-box/sb_config_server.json)
@@ -265,7 +266,7 @@ show_client_configuration() {
 
   # hy2
   hy2_port=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .listen_port' /root/sing-box/sb_config_server.json)
-  hy2_tag="${prefix_tag_ip}-Hy2"
+  hy2_tag="${prefix_tag}-Hy2"
   hy2_server_name=$(grep -o "hy2_server_name='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
   hy2_password=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .users[0].password' /root/sing-box/sb_config_server.json)
   ishopping=$(grep '^HY2_HOPPING=' /root/sing-box/config | cut -d'=' -f2)
@@ -1701,41 +1702,51 @@ echo ""
 #get ip
 server_ip=$(curl -s4m8 ip.sb -k) || server_ip=$(curl -s6m8 ip.sb -k)
 
-#get prefix_tag
-country_to_flag() {
-  case "$1" in
-    US) echo -n "🇺🇸" ;;  # 美国
-    CN) echo -n "🇨🇳" ;;  # 中国
-    JP) echo -n "🇯🇵" ;;  # 日本
-    HK) echo -n "🇭🇰" ;;  # 香港
-    TW) echo -n "🇨🇳" ;;  # 台湾
-    RU) echo -n "🇷🇺" ;;  # 俄罗斯
-    SG) echo -n "🇸🇬" ;;  # 新加坡
-    DE) echo -n "🇩🇪" ;;  # 德国
-    KR) echo -n "🇰🇷" ;;  # 韩国
-    TW) echo -n "🇨🇳" ;;  # 中国台湾
-    GB|UK) echo -n "🇬🇧" ;; # 英国
-    *) echo -n "" ;;       # 其他不显示国旗
-  esac
+prefix_tag_ip() {
+    # 获取公网IP（优先IPv4）
+    local server_ip
+    server_ip=$(curl -s4m8 ip.sb -k 2>/dev/null) || server_ip=$(curl -s6m8 ip.sb -k 2>/dev/null)
+    [ -z "$server_ip" ] && { echo -n "未知网络节点"; return 1; }
+
+    # 国家代码转国旗符号
+    country_to_flag() {
+        case "$1" in
+            US) echo -n "🇺🇸" ;;   # 美国
+            CN) echo -n "🇨🇳" ;;   # 中国
+            JP) echo -n "🇯🇵" ;;   # 日本
+            HK) echo -n "🇭🇰" ;;   # 香港
+            TW) echo -n "🇨🇳" ;;   # 台湾
+            RU) echo -n "🇷🇺" ;;   # 俄罗斯
+            SG) echo -n "🇸🇬" ;;   # 新加坡
+            DE) echo -n "🇩🇪" ;;   # 德国
+            KR) echo -n "🇰🇷" ;;   # 韩国
+            GB|UK) echo -n "🇬🇧" ;; # 英国
+            *) echo -n "" ;;
+        esac
+    }
+
+    # 获取地理位置信息
+    local geo_data status country_name country_code flag ip_head
+    geo_data=$(curl -sL "http://ip-api.com/json/$server_ip?fields=status,country,countryCode&lang=zh-CN" 2>/dev/null)
+    status=$(jq -r .status <<< "$geo_data" 2>/dev/null)
+
+    # 提取IP首段（兼容IPv4/IPv6）
+    if [[ "$server_ip" =~ : ]]; then
+        ip_head=$(cut -d ':' -f1 <<< "$server_ip")
+    else
+        ip_head=$(cut -d '.' -f1 <<< "$server_ip")
+    fi
+
+    # 构建前缀标签
+    if [ "$status" = "success" ]; then
+        country_name=$(jq -r .country <<< "$geo_data")
+        country_code=$(jq -r .countryCode <<< "$geo_data")
+        flag=$(country_to_flag "$country_code")
+        echo -n "${flag} ${country_name}节点-${ip_head}"
+    else
+        echo -n "未知地区节点-${ip_head}"
+    fi
 }
-
-# 使用 ip-api.com 获取中文国家名
-country_info=$(curl -sL "http://ip-api.com/json/$server_ip?fields=status,country,countryCode&lang=zh-CN")
-status=$(echo "$country_info" | jq -r .status)
-
-if [ "$status" = "success" ]; then
-  country_name_zh=$(echo "$country_info" | jq -r .country)  # 直接获取中文国家名
-  country_code=$(echo "$country_info" | jq -r .countryCode)
-  flag=$(country_to_flag "$country_code")
-  prefix_tag="$flag ${country_name_zh}节点"
-else
-  prefix_tag="未知地区节点"
-fi
-# 提取 IP 第一个字段
-ip_first=$(echo "$server_ip" | awk -F '.' '{print $1}')
-
-prefix_tag_ip="${prefix_tag}-${ip_first}"
-#echo "合并后的标签: $prefix_tag_ip"
 
 
 
