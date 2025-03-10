@@ -94,7 +94,7 @@ install_pkgs() {
 install_shortcut() {
   cat > /root/sing-box/sb.sh << EOF
 #!/usr/bin/env bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/install.sh) \$1
+bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/Arthurlu0421-update-tag/install.sh) \$1
 EOF
   chmod +x /root/sing-box/sb.sh
   ln -sf /root/sing-box/sb.sh /usr/bin/sb
@@ -241,7 +241,7 @@ show_client_configuration() {
   reality_uuid=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .users[0].uuid' /root/sing-box/sb_config_server.json)
   reality_server_name=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .tls.server_name' /root/sing-box/sb_config_server.json)
   short_id=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .tls.reality.short_id[0]' /root/sing-box/sb_config_server.json)
-  reality_link="vless://$reality_uuid@$server_ip:$reality_port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$reality_server_name&fp=chrome&pbk=$public_key&sid=$short_id&type=tcp&headerType=none#SING-BOX-REALITY"
+  reality_link="vless://$reality_uuid@$server_ip:$reality_port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$reality_server_name&fp=chrome&pbk=$public_key&sid=$short_id&type=tcp&headerType=none#$reality_tag"
   echo ""
   show_notice "VISION_REALITY 通用链接 二维码 通用参数" 
   echo ""
@@ -270,15 +270,15 @@ show_client_configuration() {
   hy2_password=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .users[0].password' /root/sing-box/sb_config_server.json)
   ishopping=$(grep '^HY2_HOPPING=' /root/sing-box/config | cut -d'=' -f2)
   if [ "$ishopping" = "FALSE" ]; then
-      hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name#SING-BOX-HYSTERIA2"
+      hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name#$hy2_tag"
   else
       hopping_range=$(iptables -t nat -L -n -v | grep "udp" | grep -oP 'dpts:\K\d+:\d+' || ip6tables -t nat -L -n -v | grep "udp" | grep -oP 'dpts:\K\d+:\d+')
       if [ -z "$hopping_range" ]; then
           warning "端口跳跃已开启却未找到端口范围。"
-          hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name#SING-BOX-HYSTERIA2"
+          hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name#$hy2_tag"
       else
           formatted_range=$(echo "$hopping_range" | sed 's/:/-/')
-          hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name&mport=${hy2_port},${formatted_range}#SING-BOX-HYSTERIA2"
+          hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name&mport=${hy2_port},${formatted_range}#$hy2_tag"
       fi
   fi
   echo ""
@@ -442,7 +442,7 @@ cat << EOF
                 "♻️ 自动选择",
                 "🎯 全球直连",
                 "$reality_tag",
-                "$hy2_tag"
+                "$"
             ],
             "default": "🚀 节点选择"
         },
@@ -453,7 +453,7 @@ cat << EOF
                 "♻️ 自动选择",
                 "🎯 全球直连",
                 "$reality_tag",
-                "$hy2_tag"
+                "$"
             ],
             "default": "🚀 节点选择"
         },
@@ -483,7 +483,7 @@ cat << EOF
             "type": "hysteria2",
             "server": "$server_ip",
             "server_port": $hy2_port,
-            "tag": ""$hy2_tag"",
+            "tag": "$hy2_tag",
             "password": "$hy2_password",
             "tls": {
                 "enabled": true,
