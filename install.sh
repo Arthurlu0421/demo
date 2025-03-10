@@ -1749,12 +1749,12 @@ prefix_tag_ip() {
 }
 
 
-
-
 #generate config
 cat > /root/sing-box/config <<EOF
 # VPS ip
 SERVER_IP='$server_ip'
+# VPS prefix_tag_ip 
+PREFIX_TAG=$(prefix_tag_ip)
 # Reality
 PUBLIC_KEY='$public_key'
 # Hysteria2
