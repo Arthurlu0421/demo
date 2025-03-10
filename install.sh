@@ -321,10 +321,10 @@ cat << EOF
     "experimental": {
         "clash_api": {
             "external_controller": "127.0.0.1:9090",
+			"external_ui": "ui",
+            "secret": "",
             "external_ui_download_url": "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip",
             "external_ui_download_detour": "🚀 节点选择",
-            "external_ui": "ui",
-            "secret": "",
             "default_mode": "rule"
         },
         "cache_file": {
@@ -407,21 +407,20 @@ cat << EOF
             "tag": "🚀 节点选择",
             "type": "selector",
             "outbounds": [
-                "♻️ 自动选择",
-                "🎯 全球直连",
                 "$reality_tag",
-                "$hy2_tag"
+                "$hy2_tag",
+				"♻️ 自动选择"
             ]
         },
         {
             "tag": "👨‍💻 Github",
             "type": "selector",
             "outbounds": [
-                "♻️ 自动选择",
-		"🚀 节点选择",
+				"🚀 节点选择",
                 "🎯 全球直连",
                 "$reality_tag",
-                "$hy2_tag"
+                "$hy2_tag",
+				"♻️ 自动选择"
             ],
             "default": "🚀 节点选择"
         },
@@ -429,11 +428,11 @@ cat << EOF
             "tag": "🪟 Microsoft",
             "type": "selector",
             "outbounds": [
-                "♻️ 自动选择",
-		"🚀 节点选择",
+				"🚀 节点选择",
                 "🎯 全球直连",
                 "$reality_tag",
-                "$hy2_tag"
+                "$hy2_tag",
+				"♻️ 自动选择"
             ],
             "default": "🎯 全球直连"
         },
@@ -441,11 +440,11 @@ cat << EOF
             "tag": "🍏 Apple",
             "type": "selector",
             "outbounds": [
-                "♻️ 自动选择",
-		"🚀 节点选择",
+				"🚀 节点选择",
                 "🎯 全球直连",
                 "$reality_tag",
-                "$"
+                "$hy2_tag",
+				"♻️ 自动选择"
             ],
             "default": "🎯 全球直连"
         },
@@ -453,17 +452,17 @@ cat << EOF
             "tag": "🐠 漏网之鱼",
             "type": "selector",
             "outbounds": [
-                "♻️ 自动选择",
-		"🚀 节点选择",
+				"🚀 节点选择",
                 "🎯 全球直连",
                 "$reality_tag",
-                "$"
+                "$hy2_tag",
+				"♻️ 自动选择"
             ],
             "default": "🚀 节点选择"
         },
         {
-            "type": "vless",
             "tag": "$reality_tag",
+			"type": "vless",
             "uuid": "$reality_uuid",
             "flow": "xtls-rprx-vision",
             "packet_encoding": "xudp",
@@ -484,10 +483,10 @@ cat << EOF
             }
         },
         {
+            "tag": "$hy2_tag",
             "type": "hysteria2",
             "server": "$server_ip",
             "server_port": $hy2_port,
-            "tag": "$hy2_tag",
             "password": "$hy2_password",
             "tls": {
                 "enabled": true,
