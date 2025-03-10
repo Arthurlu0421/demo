@@ -728,8 +728,8 @@ uninstall_singbox() {
     disable_hy2hopping
     systemctl disable --now sing-box > /dev/null 2>&1
     rm -f /etc/systemd/system/sing-box.service
-    rm -f /root/sing-box/sb_config_server.json /root/sing-box/sing-box /root/sing-box/mianyang.sh
-    rm -f /usr/bin/mianyang /root/sing-box/self-cert/private.key /root/sing-box/self-cert/cert.pem /root/sing-box/config
+    rm -f /root/sing-box/sb_config_server.json /root/sing-box/sing-box /root/sing-box/sb.sh
+    rm -f /usr/bin/sb /root/sing-box/self-cert/private.key /root/sing-box/self-cert/cert.pem /root/sing-box/config
     rm -rf /root/sing-box/self-cert/ /root/sing-box/
     warning "卸载完成"
 }
@@ -1611,7 +1611,7 @@ if [ -f "/root/sing-box/sb_config_server.json" ] && [ -f "/root/sing-box/config"
           ;;
       5)
           enable_bbr
-          mianyang
+          sb
           exit 0
           ;;
       6)
