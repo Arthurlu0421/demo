@@ -1775,10 +1775,6 @@ cat > /root/sing-box/sb_config_server.json << EOF
         {
             "type": "direct",
             "tag": "direct"
-        },
-        {
-            "type": "block",
-            "tag": "block"
         }
     ]
 }
