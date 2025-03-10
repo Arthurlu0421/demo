@@ -308,7 +308,7 @@ show_client_configuration() {
 
   echo ""
   echo ""
-  show_notice "sing-box客户端配置1.8.0及以上"
+  show_notice "sing-box客户端配置1.11.0及以上"
 cat << EOF
 {
     "log": {
@@ -897,7 +897,7 @@ process_warp(){
           3)
             info "请选择："
             echo ""
-            info "1. 手动添加geosite分流（适配singbox1.8.0)"
+            info "1. 手动添加geosite分流（适配singbox1.11.0)"
             info "2. 手动添加域名关键字匹配分流"
             info "0. 退出"
             echo ""
