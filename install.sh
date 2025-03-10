@@ -1109,7 +1109,7 @@ enable_warp(){
       echo ""
       info "请选择选项："
       echo ""
-      info "1. 使用绵羊提供的warp节点(默认)"
+      info "1. 使用绵羊大佬提供的warp节点(默认)"
       info "2. 使用手动刷的warp节点"
       info "0. 退出"
       echo ""
