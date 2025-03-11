@@ -1,22 +1,33 @@
-#/bin/bash
+#!/bin/bash
 
-# 定义颜色
+
 red="\033[31m\033[01m"
 green="\033[32m\033[01m"
 yellow="\033[33m\033[01m"
 reset="\033[0m"
 bold="\e[1m"
 
-# 输出不同颜色提示信息的自定义函数
 warning() { echo -e "${red}$*${reset}"; }
 error() { warning "$*" && exit 1; }
 info() { echo -e "${green}$*${reset}"; }
 hint() { echo -e "${yellow}$*${reset}"; }
 
+show_notice() {
+    local message="$1"
+    local terminal_width=$(tput cols)
+    local line=$(printf "%*s" "$terminal_width" | tr ' ' '*')
+    local padding=$(( (terminal_width - ${#message}) / 2 ))
+    local padded_message="$(printf "%*s%s" $padding '' "$message")"
+    warning "${bold}${line}${reset}"
+    echo ""
+    warning "${bold}${padded_message}${reset}"
+    echo ""
+    warning "${bold}${line}${reset}"
+}
 
 print_with_delay() {
     text="$1"
-    delay="$1"
+    delay="$2"
     for ((i = 0; i < ${#text}; i++)); do
         printf "%s" "${text:$i:1}"
         sleep "$delay"
@@ -24,43 +35,13 @@ print_with_delay() {
     echo
 }
 
-#服务器IP
-server_ip=$(curl -s4m8 ip.sb -k) || server_ip=$(curl -s6m8 ip.sb -k)
 
-install_depended_pkgs() {
-  # 如果尚未安装依赖包，请安装 qrencode、jq 和 iptables
-  local pkgs=("qrencode" "jq" "iptables")
-  for pkg in "${pkgs[@]}"; do
-    if command -v "$pkg" &> /dev/null; then
-      hint "$pkg 已经安装"
-    else
-      hint "开始安装 $pkg..."
-      if command -v apt &> /dev/null; then
-        sudo apt update > /dev/null 2>&1 && sudo apt install -y "$pkg" > /dev/null 2>&1
-      elif command -v yum &> /dev/null; then
-        sudo yum install -y "$pkg"
-      elif command -v dnf &> /dev/null; then
-        sudo dnf install -y "$pkg"
-      else
-        error "无法安装 $pkg. 请手动安装并重新运行脚本。"
-      fi
-      hint "$pkg 安装成功"
-    fi
-  done
-}
-
-
-show_sb_status(){
-    sing-box_pid=$(pgrep sing-box)
+show_status(){
+    singbox_pid=$(pgrep sing-box)
     singbox_status=$(systemctl is-active sing-box)
     if [ "$singbox_status" == "active" ]; then
-        # 获取精确使用率（带小数点）
-        cpu_usage=$(ps -p "$singbox_pid" -o %cpu | tail -n 1 | awk '{ printf "%.1f", $1 }')
-        memory_usage_mb=$(ps -p "$singbox_pid" -o rss | tail -n 1 | awk '{ printf "%.1fMB", $1/1024 }')
-
-        # 带颜色输出
-        info "[实时监控] PID $singbox_pid 资源使用:"
-        echo -e "🖥️  ${cyan}CPU占用: ${yellow}${cpu_usage}%${reset}\n💾 ${cyan}内存占用: ${yellow}${memory_usage_mb}${reset}"
+        cpu_usage=$(ps -p $singbox_pid -o %cpu | tail -n 1)
+        memory_usage_mb=$(( $(ps -p "$singbox_pid" -o rss | tail -n 1) / 1024 ))
 
         p_latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==true)][0].tag_name')
         latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==false)][0].tag_name')
@@ -86,55 +67,154 @@ show_sb_status(){
 
 }
 
-
-# 卸载sing-box
-uninstall_sing-box() {
-    warning "开始卸载..."
-    disable_hy2hopping
-    systemctl disable --now sing-box > /dev/null 2>&1
-    rm -f /etc/systemd/system/sing-box.service
-    rm -f /root/sing-box/config_server.json /root/sing-box/sing-box /root/sing-box/sb.sh
-    rm -f /usr/bin/sb /root/sing-box/self-cert/private.key /root/sing-box/self-cert/cert.pem /root/sing-box/config
-    rm -rf /root/sing-box/self-cert/ /root/sing-box/
-    warning "卸载sing-box完成"
+install_pkgs() {
+  # Install qrencode, jq, and iptables if not already installed
+  local pkgs=("qrencode" "jq" "iptables")
+  for pkg in "${pkgs[@]}"; do
+    if command -v "$pkg" &> /dev/null; then
+      hint "$pkg 已经安装"
+    else
+      hint "开始安装 $pkg..."
+      if command -v apt &> /dev/null; then
+        sudo apt update > /dev/null 2>&1 && sudo apt install -y "$pkg" > /dev/null 2>&1
+      elif command -v yum &> /dev/null; then
+        sudo yum install -y "$pkg"
+      elif command -v dnf &> /dev/null; then
+        sudo dnf install -y "$pkg"
+      else
+        error "Unable to install $pkg. Please install it manually and rerun the script."
+      fi
+      hint "$pkg 安装成功"
+    fi
+  done
 }
 
-#生成端口
-generate_port() {
-    local protocol="$1"
-    local default_port
+install_shortcut() {
+  cat > /root/sing-box/sb.sh << EOF
+#!/usr/bin/env bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/sing-box.sh) \$1
+EOF
+  chmod +x /root/sing-box/sb.sh
+  ln -sf /root/sing-box/sb.sh /usr/bin/sb
+}
 
-    # 根据协议设置默认端口
-    case "$protocol" in
-        "VISION_REALITY") default_port=443 ;;
-        "HYSTERIA2") default_port=8443 ;;
-        *) default_port=$((RANDOM % 10001 + 10000)) ;;  # 其他协议随机端口
-    esac
-
-    while :; do
-        # 交互提示（明确显示默认值）
-        read -p "请为 ${yellow}${protocol}${reset} 输入监听端口 [默认: ${green}${default_port}${reset}]: " user_input
-
-        # 处理输入（空值用默认，支持直接回车和输入空字符串）
-        local port=${user_input:-$default_port}
-
-        # 端口占用检测
-        if ss -tuln | awk '{print $5}' | grep -q ":${port}$"; then
-            warning "端口 ${red}${port}${reset} 已被占用"
+reload_singbox() {
+    if /root/sing-box/sing-box check -c /root/sing-box/sb_config_server.json; then
+        echo "检查配置文件成功，开始重启服务..."
+        if systemctl reload sing-box; then
+            echo "服务重启成功."
         else
-            info "端口 ${green}${port}${reset} 可用"
-            echo "$port"
-            return 0
+            error "服务重启失败，请检查错误日志"
         fi
+    else
+        error "配置文件检查错误，请检查配置文件"
+    fi
+}
+
+
+install_singbox(){
+		echo "请选择需要安装的SING-BOX版本:"
+		echo "1. 正式版"
+		echo "2. 测试版"
+		read -p "输入你的选项 (1-2, 默认: 1): " version_choice
+		version_choice=${version_choice:-1}
+		# Set the tag based on user choice
+		if [ "$version_choice" -eq 2 ]; then
+			echo "Installing Alpha version..."
+			latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==true)][0].tag_name')
+		else
+			echo "Installing Stable version..."
+			latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==false)][0].tag_name')
+		fi
+		# No need to fetch the latest version tag again, it's already set based on user choice
+		latest_version=${latest_version_tag#v}  # Remove 'v' prefix from version number
+		echo "Latest version: $latest_version"
+		# Detect server architecture
+		arch=$(uname -m)
+		echo "本机架构为: $arch"
+    case ${arch} in
+      x86_64) arch="amd64" ;;
+      aarch64) arch="arm64" ;;
+      armv7l) arch="armv7" ;;
+    esac
+    # latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | grep -Po '"tag_name": "\K.*?(?=")' | sort -V | tail -n 1)
+    # latest_version=${latest_version_tag#v}
+    echo "最新版本为: $latest_version"
+    package_name="sing-box-${latest_version}-linux-${arch}"
+    url="https://github.com/SagerNet/sing-box/releases/download/${latest_version_tag}/${package_name}.tar.gz"
+    curl -sLo "/root/${package_name}.tar.gz" "$url"
+    tar -xzf "/root/${package_name}.tar.gz" -C /root
+    mv "/root/${package_name}/sing-box" /root/sing-box
+    rm -r "/root/${package_name}.tar.gz" "/root/${package_name}"
+    chown root:root /root/sing-box/sing-box
+    chmod +x /root/sing-box/sing-box
+}
+
+change_singbox(){
+			echo "切换SING-BOX版本..."
+			echo ""
+			# Extract the current version
+			current_version_tag=$(/root/sing-box/sing-box version | grep 'sing-box version' | awk '{print $3}')
+
+			# Fetch the latest stable and alpha version tags
+			latest_stable_version=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==false)][0].tag_name')
+			latest_alpha_version=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==true)][0].tag_name')
+
+			# Determine current version type (stable or alpha)
+      if [[ $current_version_tag == *"-alpha"* || $current_version_tag == *"-rc"* || $current_version_tag == *"-beta"* ]]; then
+				echo "当前为测试版，准备切换为最新正式版..."
+				echo ""
+				new_version_tag=$latest_stable_version
+			else
+				echo "当前为正式版，准备切换为最新测试版..."
+				echo ""
+				new_version_tag=$latest_alpha_version
+			fi
+
+			# Stop the service before updating
+			systemctl stop sing-box
+
+			# Download and replace the binary
+			arch=$(uname -m)
+			case $arch in
+				x86_64) arch="amd64" ;;
+				aarch64) arch="arm64" ;;
+				armv7l) arch="armv7" ;;
+			esac
+
+			package_name="sing-box-${new_version_tag#v}-linux-${arch}"
+			url="https://github.com/SagerNet/sing-box/releases/download/${new_version_tag}/${package_name}.tar.gz"
+
+			curl -sLo "/root/${package_name}.tar.gz" "$url"
+			tar -xzf "/root/${package_name}.tar.gz" -C /root
+			mv "/root/${package_name}/sing-box" /root/sing-box/sing-box
+
+			# Cleanup the package
+			rm -r "/root/${package_name}.tar.gz" "/root/${package_name}"
+
+			# Set the permissions
+			chown root:root /root/sing-box/sing-box
+			chmod +x /root/sing-box/sing-box
+
+			# Restart the service with the new binary
+			systemctl daemon-reload
+			systemctl start sing-box
+
+			echo "Version switched and service restarted with the new binary."
+			echo ""
+}
+
+generate_port() {
+   local protocol="$1"
+    while :; do
+        port=$((RANDOM % 10001 + 10000))
+        read -p "请为 ${protocol} 输入监听端口(默认为随机生成): " user_input
+        port=${user_input:-$port}
+        ss -tuln | grep -q ":$port\b" || { echo "$port"; return $port; }
+        echo "端口 $port 被占用，请输入其他端口"
     done
 }
 
-# 调用示例
-reality_port=$(generate_port "VISION_REALITY")  # 用户回车 → 443
-hy2_port=$(generate_port "HYSTERIA2")           # 用户回车 → 8443
-
-
-# 修改端口
 modify_port() {
     local current_port="$1"
     local protocol="$2"
@@ -148,61 +228,6 @@ modify_port() {
         fi
     done
     echo "$modified_port"
-}
-
-# 修改sing-box
-modify_singbox() {
-    echo ""
-    warning "开始修改VISION_REALITY 端口号和域名"
-    echo ""
-    reality_current_port=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .listen_port' /root/sing-box/config_server.json)
-    reality_port=$(modify_port "$reality_current_port" "VISION_REALITY")
-    info "生成的端口号为: $reality_port"
-    reality_current_server_name=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .tls.server_name' /root/sing-box/config_server.json)
-    reality_server_name="$reality_current_server_name"
-    while :; do
-        read -p "请输入需要偷取证书的网站，必须支持 TLS 1.3 and HTTP/2 (默认: $reality_server_name): " input_server_name
-        reality_server_name=${input_server_name:-$reality_server_name}
-        if curl --tlsv1.3 --http2 -sI "https://$reality_server_name" | grep -q "HTTP/2"; then
-            break
-        else
-            warning "域名 $reality_server_name 不支持 TLS 1.3 或 HTTP/2，请重新输入."
-        fi
-    done
-    info "域名 $reality_server_name 符合标准"
-    echo ""
-    warning "开始修改hysteria2端口号"
-    echo ""
-    hy2_current_port=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .listen_port' /root/sing-box/config_server.json)
-    hy2_port=$(modify_port "$hy2_current_port" "HYSTERIA2")
-    info "生成的端口号为: $hy2_port"
-    info "修改hysteria2应用证书路径"
-    hy2_current_cert=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .tls.certificate_path' /root/sing-box/config_server.json)
-    hy2_current_key=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .tls.key_path' /root/sing-box/config_server.json)
-    hy2_current_domain=$(grep -o "hy2_server_name='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
-    read -p "请输入证书域名 (默认: $hy2_current_domain): " hy2_domain
-    hy2_domain=${hy2_domain:-$hy2_current_domain}
-    read -p "请输入证书cert路径 (默认: $hy2_current_cert): " hy2_cert
-    hy2_cert=${hy2_cert:-$hy2_current_cert}
-    read -p "请输入证书key路径 (默认: $hy2_current_key): " hy2_key
-    hy2_key=${hy2_key:-$hy2_current_key}
-    jq --arg reality_port "$reality_port" \
-    --arg hy2_port "$hy2_port" \
-    --arg reality_server_name "$reality_server_name" \
-    --arg hy2_cert "$hy2_cert" \
-    --arg hy2_key "$hy2_key" \
-    '
-    (.inbounds[] | select(.tag == "vless-in") | .listen_port) |= ($reality_port | tonumber) |
-    (.inbounds[] | select(.tag == "hy2-in") | .listen_port) |= ($hy2_port | tonumber) |
-    (.inbounds[] | select(.tag == "vless-in") | .tls.server_name) |= $reality_server_name |
-    (.inbounds[] | select(.tag == "vless-in") | .tls.reality.handshake.server) |= $reality_server_name |
-    (.inbounds[] | select(.tag == "hy2-in") | .tls.certificate_path) |= $hy2_cert |
-    (.inbounds[] | select(.tag == "hy2-in") | .tls.key_path) |= $hy2_key
-    ' /root/sing-box/config_server.json > /root/sing-box/config_server.temp && mv /root/sing-box/config_server.temp /root/sing-box/config_server.json
-    
-    sed -i "s/hy2_server_name='.*'/hy2_server_name='$hy2_domain'/" /root/sing-box/config
-
-    reload_singbox
 }
 
 prefix_tag_ip() {
@@ -252,115 +277,16 @@ prefix_tag_ip() {
 }
 
 
-
-install_shortcut() {
-  cat > /root/sing-box/sb.sh << EOF
-#!/usr/bin/env bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/sing-box.sh) \$1
-EOF
-  chmod +x /root/sing-box/sb.sh
-  ln -sf /root/sing-box/sb.sh /usr/bin/sb
-}
-
-
-reload_singbox() {
-    if /root/sing-box/sing-box check -c /root/sing-box/config_server.json; then
-        echo "检查配置文件成功，开始重启服务..."
-        if systemctl reload sing-box; then
-            echo "服务重启成功."
-        else
-            error "服务重启失败，请检查错误日志"
-        fi
-    else
-        error "配置文件检查错误，请检查配置文件"
-    fi
-}
-
-#处理端口跳跃
-process_hy2hopping(){
-        while :; do
-          ishopping=$(grep '^HY2_HOPPING=' /root/sing-box/config | cut -d'=' -f2)
-          if [ "$ishopping" = "FALSE" ]; then
-              warning "开始设置端口跳跃范围..."
-              enable_hy2hopping       
-          else
-              warning "端口跳跃已开启"
-              echo ""
-              info "请选择选项："
-              echo ""
-              info "1. 关闭端口跳跃"
-              info "2. 重新设置"
-              info "3. 查看规则"
-              info "0. 退出"
-              echo ""
-              read -p "请输入对应数字（0-3）: " hopping_input
-              echo ""
-              case $hopping_input in
-                1)
-                  disable_hy2hopping
-                  echo "端口跳跃规则已删除"
-                  break
-                  ;;
-                2)
-                  disable_hy2hopping
-                  echo "端口跳跃规则已删除"
-                  echo "开始重新设置端口跳跃"
-                  enable_hy2hopping
-                  break
-                  ;;
-                3)
-                  # 查看NAT规则
-                  iptables -t nat -L -n -v | grep "udp"
-                  ip6tables -t nat -L -n -v | grep "udp"
-                  break
-                  ;;
-                0)
-                  echo "退出"
-                  break
-                  ;;
-                *)
-                  echo "无效的选项,请重新选择"
-                  ;;
-              esac
-          fi
-        done
-}
-# 开启hysteria2端口跳跃
-enable_hy2hopping(){
-    hint "开启端口跳跃..."
-    warning "注意: 端口跳跃范围不要覆盖已经占用的端口，否则会错误！"
-    hy2_current_port=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .listen_port' /root/sing-box/config_server.json)
-    read -p "输入UDP端口范围的起始值(默认40000): " -r start_port
-    start_port=${start_port:-40000}
-    read -p "输入UDP端口范围的结束值(默认41000): " -r end_port
-    end_port=${end_port:-41000}
-    iptables -t nat -A PREROUTING -i eth0 -p udp --dport $start_port:$end_port -j DNAT --to-destination :$hy2_current_port
-    ip6tables -t nat -A PREROUTING -i eth0 -p udp --dport $start_port:$end_port -j DNAT --to-destination :$hy2_current_port
-
-    sed -i "s/HY2_HOPPING=FALSE/HY2_HOPPING=TRUE/" /root/sing-box/config
-}
-# 关闭端口跳跃
-disable_hy2hopping(){
-  echo "正在关闭端口跳跃..."
-  iptables -t nat -F PREROUTING >/dev/null 2>&1
-  ip6tables -t nat -F PREROUTING >/dev/null 2>&1
-  sed -i "s/HY2_HOPPING=TRUE/HY2_HOPPING=FALSE/" /root/sing-box/config
-  #TOREMOVE compatible with legacy users
-  sed -i "s/HY2_HOPPING='TRUE'/HY2_HOPPING=FALSE/" /root/sing-box/config
-  echo "关闭完成"
-}
-
-
-# 客户端配置
-show_client_config() {
+# client configuration
+show_client_configuration() {
   server_ip=$(grep -o "SERVER_IP='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
   prefix_tag=$(prefix_tag_ip)
   reality_tag="${prefix_tag}-Reality"
   public_key=$(grep -o "PUBLIC_KEY='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
-  reality_port=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .listen_port' /root/sing-box/config_server.json)
-  reality_uuid=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .users[0].uuid' /root/sing-box/config_server.json)
-  reality_server_name=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .tls.server_name' /root/sing-box/config_server.json)
-  short_id=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .tls.reality.short_id[0]' /root/sing-box/config_server.json)
+  reality_port=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .listen_port' /root/sing-box/sb_config_server.json)
+  reality_uuid=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .users[0].uuid' /root/sing-box/sb_config_server.json)
+  reality_server_name=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .tls.server_name' /root/sing-box/sb_config_server.json)
+  short_id=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .tls.reality.short_id[0]' /root/sing-box/sb_config_server.json)
   reality_link="vless://$reality_uuid@$server_ip:$reality_port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$reality_server_name&fp=chrome&pbk=$public_key&sid=$short_id&type=tcp&headerType=none#$reality_tag"
   echo ""
   show_notice "VISION_REALITY 通用链接 二维码 通用参数" 
@@ -384,10 +310,10 @@ show_client_config() {
   echo "------------------------------------"
 
   # hy2
-  hy2_port=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .listen_port' /root/sing-box/config_server.json)
+  hy2_port=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .listen_port' /root/sing-box/sb_config_server.json)
   hy2_tag="${prefix_tag}-Hy2"
   hy2_server_name=$(grep -o "hy2_server_name='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
-  hy2_password=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .users[0].password' /root/sing-box/config_server.json)
+  hy2_password=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .users[0].password' /root/sing-box/sb_config_server.json)
   ishopping=$(grep '^HY2_HOPPING=' /root/sing-box/config | cut -d'=' -f2)
   if [ "$ishopping" = "FALSE" ]; then
       hy2_link="hysteria2://$hy2_password@$server_ip:$hy2_port?insecure=1&sni=$hy2_server_name#$hy2_tag"
@@ -789,114 +715,238 @@ EOF
 
 }
 
-
-# 安装sing-box
-install_singbox(){
-		echo "请选择需要安装的SING-BOX版本:"
-		echo "1. 正式版"
-		echo "2. 测试版"
-		read -p "输入你的选项 (1-2, 默认: 1): " version_choice
-		version_choice=${version_choice:-1}
-		# 根据用户选择设置标签
-		if [ "$version_choice" -eq 2 ]; then
-			echo "安装测试版..."
-			latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==true)][0].tag_name')
-		else
-			echo "安装稳定版..."
-			latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==false)][0].tag_name')
-		fi
-		# 无需再次获取最新版本标签，它已根据用户选择设置
-		latest_version=${latest_version_tag#v}  # 从版本号中删除“v”前缀
-		echo "最新版本为: $latest_version"
-		# 检测服务器架构
-		arch=$(uname -m)
-		echo "本机架构为: $arch"
-    case ${arch} in
-      x86_64) arch="amd64" ;;
-      aarch64) arch="arm64" ;;
-      armv7l) arch="armv7" ;;
-    esac
-    echo "最新版本为: $latest_version"
-    package_name="sing-box-${latest_version}-linux-${arch}"
-    url="https://github.com/SagerNet/sing-box/releases/download/${latest_version_tag}/${package_name}.tar.gz"
-    curl -sLo "/root/${package_name}.tar.gz" "$url"
-    tar -xzf "/root/${package_name}.tar.gz" -C /root
-    mv "/root/${package_name}/sing-box" /root/sing-box
-    rm -r "/root/${package_name}.tar.gz" "/root/${package_name}"
-    chown root:root /root/sing-box/sing-box
-    chmod +x /root/sing-box/sing-box
-}
-
-
-
-change_singbox(){
-			echo "切换SING-BOX版本..."
-			echo ""
-			# Extract the current version
-			current_version_tag=$(/root/sing-box/sing-box version | grep 'sing-box version' | awk '{print $3}')
-
-			# Fetch the latest stable and alpha version tags
-			latest_stable_version=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==false)][0].tag_name')
-			latest_alpha_version=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==true)][0].tag_name')
-
-			# Determine current version type (stable or alpha)
-      if [[ $current_version_tag == *"-alpha"* || $current_version_tag == *"-rc"* || $current_version_tag == *"-beta"* ]]; then
-				echo "当前为测试版，准备切换为最新正式版..."
-				echo ""
-				new_version_tag=$latest_stable_version
-			else
-				echo "当前为正式版，准备切换为最新测试版..."
-				echo ""
-				new_version_tag=$latest_alpha_version
-			fi
-
-			# Stop the service before updating
-			systemctl stop sing-box
-
-			# Download and replace the binary
-			arch=$(uname -m)
-			case $arch in
-				x86_64) arch="amd64" ;;
-				aarch64) arch="arm64" ;;
-				armv7l) arch="armv7" ;;
-			esac
-
-			package_name="sing-box-${new_version_tag#v}-linux-${arch}"
-			url="https://github.com/SagerNet/sing-box/releases/download/${new_version_tag}/${package_name}.tar.gz"
-
-			curl -sLo "/root/${package_name}.tar.gz" "$url"
-			tar -xzf "/root/${package_name}.tar.gz" -C /root
-			mv "/root/${package_name}/sing-box" /root/sing-box/sing-box
-
-			# Cleanup the package
-			rm -r "/root/${package_name}.tar.gz" "/root/${package_name}"
-
-			# Set the permissions
-			chown root:root /root/sing-box/sing-box
-			chmod +x /root/sing-box/sing-box
-
-			# Restart the service with the new binary
-			systemctl daemon-reload
-			systemctl start sing-box
-
-			echo "Version switched and service restarted with the new binary."
-			echo ""
-}
-
-
-
-# --------------------------------
-# 脚本入口
-print_with_delay "sing-box脚本 by Arthur" 0.01
-echo ""
-echo ""
-install_depended_pkgs
-
-# 检查 config_server.json, sing-box, and sing-box.service 是否存在
-if [ -f "/root/sing-box/config_server.json" ] && [ -f "/root/sing-box/config" ] && [ -f "/root/sing-box/sb.sh" ] && [ -f "/usr/bin/sb" ] && [ -f "/root/sing-box/sing-box" ] && [ -f "/etc/systemd/system/sing-box.service" ]; then
+enable_bbr() {
+    bash <(curl -L -s https://raw.githubusercontent.com/teddysun/across/master/bbr.sh)
     echo ""
-    warning "sing-box服务端已安装"
-    show_sb_status
+}
+
+modify_singbox() {
+    echo ""
+    warning "开始修改VISION_REALITY 端口号和域名"
+    echo ""
+    reality_current_port=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .listen_port' /root/sing-box/sb_config_server.json)
+    reality_port=$(modify_port "$reality_current_port" "VISION_REALITY")
+    info "生成的端口号为: $reality_port"
+    reality_current_server_name=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .tls.server_name' /root/sing-box/sb_config_server.json)
+    reality_server_name="$reality_current_server_name"
+    while :; do
+        read -p "请输入需要偷取证书的网站，必须支持 TLS 1.3 and HTTP/2 (默认: $reality_server_name): " input_server_name
+        reality_server_name=${input_server_name:-$reality_server_name}
+        if curl --tlsv1.3 --http2 -sI "https://$reality_server_name" | grep -q "HTTP/2"; then
+            break
+        else
+            warning "域名 $reality_server_name 不支持 TLS 1.3 或 HTTP/2，请重新输入."
+        fi
+    done
+    info "域名 $reality_server_name 符合标准"
+    echo ""
+    warning "开始修改hysteria2端口号"
+    echo ""
+    hy2_current_port=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .listen_port' /root/sing-box/sb_config_server.json)
+    hy2_port=$(modify_port "$hy2_current_port" "HYSTERIA2")
+    info "生成的端口号为: $hy2_port"
+    info "修改hysteria2应用证书路径"
+    hy2_current_cert=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .tls.certificate_path' /root/sing-box/sb_config_server.json)
+    hy2_current_key=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .tls.key_path' /root/sing-box/sb_config_server.json)
+    hy2_current_domain=$(grep -o "hy2_server_name='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
+    read -p "请输入证书域名 (默认: $hy2_current_domain): " hy2_domain
+    hy2_domain=${hy2_domain:-$hy2_current_domain}
+    read -p "请输入证书cert路径 (默认: $hy2_current_cert): " hy2_cert
+    hy2_cert=${hy2_cert:-$hy2_current_cert}
+    read -p "请输入证书key路径 (默认: $hy2_current_key): " hy2_key
+    hy2_key=${hy2_key:-$hy2_current_key}
+    jq --arg reality_port "$reality_port" \
+    --arg hy2_port "$hy2_port" \
+    --arg reality_server_name "$reality_server_name" \
+    --arg hy2_cert "$hy2_cert" \
+    --arg hy2_key "$hy2_key" \
+    '
+    (.inbounds[] | select(.tag == "vless-in") | .listen_port) |= ($reality_port | tonumber) |
+    (.inbounds[] | select(.tag == "hy2-in") | .listen_port) |= ($hy2_port | tonumber) |
+    (.inbounds[] | select(.tag == "vless-in") | .tls.server_name) |= $reality_server_name |
+    (.inbounds[] | select(.tag == "vless-in") | .tls.reality.handshake.server) |= $reality_server_name |
+    (.inbounds[] | select(.tag == "hy2-in") | .tls.certificate_path) |= $hy2_cert |
+    (.inbounds[] | select(.tag == "hy2-in") | .tls.key_path) |= $hy2_key
+    ' /root/sing-box/sb_config_server.json > /root/sing-box/sb_config_server.temp && mv /root/sing-box/sb_config_server.temp /root/sing-box/sb_config_server.json
+    
+    sed -i "s/hy2_server_name='.*'/hy2_server_name='$hy2_domain'/" /root/sing-box/config
+
+    reload_singbox
+}
+
+uninstall_singbox() {
+    warning "开始卸载..."
+    disable_hy2hopping
+    systemctl disable --now sing-box > /dev/null 2>&1
+    rm -f /etc/systemd/system/sing-box.service
+    rm -f /root/sing-box/sb_config_server.json /root/sing-box/sing-box /root/sing-box/sb.sh
+    rm -f /usr/bin/sb /root/sing-box/self-cert/private.key /root/sing-box/self-cert/cert.pem /root/sing-box/config
+    rm -rf /root/sing-box/self-cert/ /root/sing-box/
+    warning "卸载完成"
+}
+
+
+update_singbox(){
+    info "更新singbox..."
+    install_singbox
+    # 检查配置
+    if /root/sing-box/sing-box check -c /root/sing-box/sb_config_server.json; then
+      echo "检查配置文件成功，重启服务..."
+      systemctl restart sing-box
+    else
+      error "启动失败，请检查配置文件"
+    fi
+}
+
+generate_random_number() {
+    # Generates an 8-digit random number
+    echo $((10000000 + RANDOM % 90000000))
+}
+
+process_singbox() {
+  while :; do
+    echo ""
+    echo ""
+    info "请选择选项："
+    echo ""
+    info "1. 重启sing-box"
+    info "2. 更新sing-box内核"
+    info "3. 查看sing-box状态"
+    info "4. 查看sing-box实时日志"
+    info "5. 查看sing-box服务端配置"
+    info "6. 切换SINGBOX内核版本"
+    info "0. 退出"
+    echo ""
+    read -p "请输入对应数字（0-6）: " user_input
+    echo ""
+    case "$user_input" in
+        1)
+            warning "重启sing-box..."
+            # 检查配置
+            if /root/sing-box/sing-box check -c /root/sing-box/sb_config_server.json; then
+                info "检查配置文件，启动服务..."
+                systemctl restart sing-box
+            fi
+            info "重启完成"
+            break
+            ;;
+        2)
+            update_singbox
+            break
+            ;;
+        3)
+            warning "singbox基本信息如下(ctrl+c退出)"
+            systemctl status sing-box
+            break
+            ;;
+        4)
+            warning "singbox日志如下(ctrl+c退出)："
+            journalctl -u sing-box -o cat -f
+            break
+            ;;
+        5)
+            echo "singbox服务端如下："
+            cat /root/sing-box/sb_config_server.json
+            break
+            ;;
+        6)
+            change_singbox
+            break
+            ;;
+        0)
+          echo "退出"
+          break
+          ;;
+        *)
+            echo "请输入正确选项: 0-6"
+            ;;
+    esac
+  done
+}
+
+process_hy2hopping(){
+        while :; do
+          ishopping=$(grep '^HY2_HOPPING=' /root/sing-box/config | cut -d'=' -f2)
+          if [ "$ishopping" = "FALSE" ]; then
+              warning "开始设置端口跳跃范围..."
+              enable_hy2hopping       
+          else
+              warning "端口跳跃已开启"
+              echo ""
+              info "请选择选项："
+              echo ""
+              info "1. 关闭端口跳跃"
+              info "2. 重新设置"
+              info "3. 查看规则"
+              info "0. 退出"
+              echo ""
+              read -p "请输入对应数字（0-3）: " hopping_input
+              echo ""
+              case $hopping_input in
+                1)
+                  disable_hy2hopping
+                  echo "端口跳跃规则已删除"
+                  break
+                  ;;
+                2)
+                  disable_hy2hopping
+                  echo "端口跳跃规则已删除"
+                  echo "开始重新设置端口跳跃"
+                  enable_hy2hopping
+                  break
+                  ;;
+                3)
+                  # 查看NAT规则
+                  iptables -t nat -L -n -v | grep "udp"
+                  ip6tables -t nat -L -n -v | grep "udp"
+                  break
+                  ;;
+                0)
+                  echo "退出"
+                  break
+                  ;;
+                *)
+                  echo "无效的选项,请重新选择"
+                  ;;
+              esac
+          fi
+        done
+}
+# 开启hysteria2端口跳跃
+enable_hy2hopping(){
+    hint "开启端口跳跃..."
+    warning "注意: 端口跳跃范围不要覆盖已经占用的端口，否则会错误！"
+    hy2_current_port=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .listen_port' /root/sing-box/sb_config_server.json)
+    read -p "输入UDP端口范围的起始值(默认40000): " -r start_port
+    start_port=${start_port:-40000}
+    read -p "输入UDP端口范围的结束值(默认41000): " -r end_port
+    end_port=${end_port:-41000}
+    iptables -t nat -A PREROUTING -i eth0 -p udp --dport $start_port:$end_port -j DNAT --to-destination :$hy2_current_port
+    ip6tables -t nat -A PREROUTING -i eth0 -p udp --dport $start_port:$end_port -j DNAT --to-destination :$hy2_current_port
+
+    sed -i "s/HY2_HOPPING=FALSE/HY2_HOPPING=TRUE/" /root/sing-box/config
+}
+
+disable_hy2hopping(){
+  echo "正在关闭端口跳跃..."
+  iptables -t nat -F PREROUTING >/dev/null 2>&1
+  ip6tables -t nat -F PREROUTING >/dev/null 2>&1
+  sed -i "s/HY2_HOPPING=TRUE/HY2_HOPPING=FALSE/" /root/sing-box/config
+  #TOREMOVE compatible with legacy users
+  sed -i "s/HY2_HOPPING='TRUE'/HY2_HOPPING=FALSE/" /root/sing-box/config
+  echo "关闭完成"
+}
+
+#--------------------------------
+print_with_delay "Reality Hysteria2 二合一脚本 by Arthur" 0.03
+echo ""
+echo ""
+install_pkgs
+# Check if reality.json, sing-box, and sing-box.service already exist
+if [ -f "/root/sing-box/sb_config_server.json" ] && [ -f "/root/sing-box/config" ] && [ -f "/root/sing-box/sb.sh" ] && [ -f "/usr/bin/sb" ] && [ -f "/root/sing-box/sing-box" ] && [ -f "/etc/systemd/system/sing-box.service" ]; then
+    echo ""
+    warning "sing-box-reality-hysteria2已安装"
+    show_status
     echo ""
     hint "=======常规配置========="
     warning "请选择选项:"
@@ -906,30 +956,38 @@ if [ -f "/root/sing-box/config_server.json" ] && [ -f "/root/sing-box/config" ] 
     info "3. 显示客户端配置"
     info "4. sing-box基础操作"
     info "5. 一键开启bbr"
-    info "6. hysteria2端口跳跃"
+    info "6.hysteria2端口跳跃"
+    info "7. 本机添加任意门中转规则（本机做中转机）"
     info "0. 卸载"
     echo ""
+    hint "=======落地机解锁配置======"
+    echo ""
+    info "8.  落地机任意门解锁（本机做解锁机）"
+    info "9. 落地机ss解锁（本机做解锁机）"
+    echo ""
+    hint "========================="
     echo ""
     read -p "请输入对应数字 (0-10): " choice
 
     case $choice in
       1)
-          uninstall_sing-box
+          uninstall_singbox
         ;;
       2)
-          modify_sing-box
-          show_client_config
+          modify_singbox
+          show_client_configuration
           exit 0
         ;;
       3)  
-          show_client_config
+          show_client_configuration
           exit 0
       ;;	
       4)  
-          sb
+          process_singbox
           exit 0
           ;;
       5)
+          enable_bbr
           sb
           exit 0
           ;;
@@ -937,8 +995,20 @@ if [ -f "/root/sing-box/config_server.json" ] && [ -f "/root/sing-box/config" ] 
           process_hy2hopping
           exit 0
           ;;
+      7) 
+          process_doko
+          exit 0
+          ;;
+      8) 
+          process_dokoko
+          exit 0
+          ;;
+      9) 
+          process_ssko
+          exit 0
+          ;;
       0)
-          uninstall_sing-box
+          uninstall_singbox
 	        exit 0
           ;;
       *)
@@ -947,14 +1017,14 @@ if [ -f "/root/sing-box/config_server.json" ] && [ -f "/root/sing-box/config" ] 
           ;;
 	esac
 	fi
-	
+
 mkdir -p "/root/sing-box/"
 
-install_sing-box
+install_singbox
 echo ""
 echo ""
-# Vless_VISION_REALITY
-warning "开始配置Vless_VISION_REALITY..."
+
+warning "开始配置VISION_REALITY..."
 echo ""
 key_pair=$(/root/sing-box/sing-box generate reality-keypair)
 private_key=$(echo "$key_pair" | awk '/PrivateKey/ {print $2}' | tr -d '"')
@@ -996,6 +1066,8 @@ mkdir -p /root/sing-box/self-cert/ && openssl ecparam -genkey -name prime256v1 -
 info "自签证书生成完成,保存于/root/sing-box/self-cert/"
 echo ""
 echo ""
+#get ip
+server_ip=$(curl -s4m8 ip.sb -k) || server_ip=$(curl -s6m8 ip.sb -k)
 
 
 #generate config
@@ -1010,7 +1082,7 @@ HY2_HOPPING=FALSE
 EOF
 
 #generate singbox server config
-cat > /root/sing-box/config_server.json << EOF
+cat > /root/sing-box/sb_config_server.json << EOF
 {
   "log": {
     "disabled": false,
@@ -1084,7 +1156,7 @@ User=root
 WorkingDirectory=/root/sing-box
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW
-ExecStart=/root/sing-box/sing-box run -c /root/sing-box/config_server.json
+ExecStart=/root/sing-box/sing-box run -c /root/sing-box/sb_config_server.json
 ExecReload=/bin/kill -HUP \$MAINPID
 Restart=on-failure
 RestartSec=10
@@ -1093,14 +1165,14 @@ LimitNOFILE=infinity
 WantedBy=multi-user.target
 EOF
 
-if /root/sing-box/sing-box check -c /root/sing-box/config_server.json; then
-    hint "检查sing-box配置文件..."
+if /root/sing-box/sing-box check -c /root/sing-box/sb_config_server.json; then
+    hint "check config profile..."
     systemctl daemon-reload
     systemctl enable sing-box > /dev/null 2>&1
     systemctl start sing-box
     systemctl restart sing-box
     install_shortcut
-    show_client_config
+    show_client_configuration
     warning "输入sb,即可打开菜单"
 else
     error "配置文件检查失败，启动失败!"
