@@ -679,6 +679,13 @@ show_client_configuration() {
                 "outbound": "🎯 全球直连"
             },
             {
+                "rule_set": [ 
+                    "geosite-category-ads-all",
+                    "my-block"
+                ],
+                "action": "reject"
+            },
+            {
                 "ip_cidr": [
                     "$server_ip",
                     "192.168.100.1",
@@ -695,13 +702,6 @@ show_client_configuration() {
                 ],
                 "action": "reject"
             },            
-            {
-                "rule_set": [ 
-                    "geosite-category-ads-all",
-                    "my-block"
-                ],
-                "action": "reject"
-            },
             {
                 "rule_set": [
                     "geosite-private",
