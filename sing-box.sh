@@ -651,7 +651,17 @@ show_client_configuration() {
                 "action": "sniff"
             },
             {
-                "protocol": "dns",
+                "type": "logical",
+                "mode": "or",
+                "rules": [
+                    {
+                        "protocol": "dns"
+                    },
+                    {
+                        "source_port": 53
+                    }
+                ],
+
                 "action": "hijack-dns"
             },
             {
