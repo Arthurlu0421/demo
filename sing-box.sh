@@ -1139,7 +1139,7 @@ if [ -f "/root/sing-box/sb_config_server.json" ] && [ -f "/root/sing-box/config"
         ;;
     esac
 fi
-
+warning "创建目录..."
 mkdir -p "/root/sing-box/"
 
 install_singbox
