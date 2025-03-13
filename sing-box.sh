@@ -886,7 +886,7 @@ modify_singbox() {
     info "修改hysteria2应用证书路径"
     hy2_current_cert=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .tls.certificate_path' /root/sing-box/sb_config_server.json)
     hy2_current_key=$(jq -r '.inbounds[] | select(.tag == "hy2-in") | .tls.key_path' /root/sing-box/sb_config_server.json)
-    hy2_current_domain=$(grep -o "hy2_server_name='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
+    hy2_current_domain=$(grep -o "HY2_SERVER_NAME='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
     read -p "请输入证书域名 (默认: $hy2_current_domain): " hy2_domain
     hy2_domain=${hy2_domain:-$hy2_current_domain}
     read -p "请输入证书cert路径 (默认: $hy2_current_cert): " hy2_cert
