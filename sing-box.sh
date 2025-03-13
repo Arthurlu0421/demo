@@ -922,6 +922,7 @@ uninstall_singbox() {
     warning "开始卸载..."
     disable_hy2hopping
     systemctl disable --now sing-box >/dev/null 2>&1
+    cd /root
     rm -f /etc/systemd/system/sing-box.service
     rm -f /root/sing-box/sb_config_server.json /root/sing-box/sing-box /root/sing-box/sb.sh
     rm -f /usr/bin/sb /root/sing-box/self-cert/private.key /root/sing-box/self-cert/cert.pem /root/sing-box/config
