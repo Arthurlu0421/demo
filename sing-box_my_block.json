@@ -1,0 +1,54 @@
+
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain": [
+        "fans.91selfie.com",
+        "333bbb777bbb.com",
+        "jads.co",
+        "u001.25img.com"
+      ]
+    },
+    {
+      "domain_suffix": [
+        "91selfie.com",
+        "u001.25img.com",
+        "jads.co",
+        "adtng.com",
+        "img-x.jd.com",
+        "mobads.baidu.com",
+        "byescm.com",
+        "pangolin-sdk-toutiao-b.com",
+        "zijieapi.com",
+        "gdt.qq.com",
+        "bgg.baidu.com",
+        "api.ad.xiaomi.com",
+        "data.mistat.xiaomi.com",
+        "data.video.ptqy.gitv.tv",
+        "diagnosis.ad.xiaomi.com",
+        "msg.ptqy.gitv.tv",
+        "scs-hcdn.ptqy.gitv.tv",
+        "sdk-cache.video.ptqy.gitv.tv",
+        "stat.pandora.xiaomi.com",
+        "t7z.cupid.ptqy.gitv.tv",
+        "ads.superad.cc",
+        "cdn.ceshifile.org",
+        "s4.cnzz.com",
+        "avday.tv",
+        "googletagmanager.com",
+        "img.liangzipic.com",
+        "ra.jhdgsfnjj.top",
+        "rz.erfvhgg.top",
+        "rq.gfadqwfh.top",
+        "fans.91selfie.com",
+        "333bbb777bbb.com"
+      ]
+    },
+    {
+      "port": [
+        21114
+      ]
+    }
+  ]
+}
