@@ -94,7 +94,7 @@ reload_singbox() {
         echo "检查配置文件成功，开始重启服务..."
         if systemctl reload sing-box; then
             echo "服务重启成功."
-            systemctl status sing-box
+            # systemctl status sing-box
         else
             error "服务重启失败，请检查错误日志"
             systemctl status sing-box
