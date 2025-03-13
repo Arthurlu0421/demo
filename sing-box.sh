@@ -54,9 +54,9 @@ show_status() {
         info "状态: 运行中"
         info "CPU 占用: $cpu_usage%"
         info "内存 占用: ${memory_usage_mb}MB"
-        info "singbox测试版最新版本: $p_latest_version"
-        info "singbox正式版最新版本: $latest_version"
-        info "singbox当前版本(输入4管理切换): $(/root/sing-box/sing-box version 2>/dev/null | awk '/version/{print $NF}')"
+        info "sing-box测试版最新版本: $p_latest_version"
+        info "sing-box正式版最新版本: $latest_version"
+        info "sing-box当前版本(输入4管理切换): $(/root/sing-box/sing-box version 2>/dev/null | awk '/version/{print $NF}')"
         info "hy2端口跳跃(输入6管理): $(if [ "$hy2hop" == "TRUE" ]; then echo "开启"; else echo "关闭"; fi)"
         hint "========================="
     else
@@ -94,14 +94,13 @@ reload_singbox() {
         echo "检查配置文件成功，开始重启服务..."
         if systemctl reload sing-box; then
             echo "服务重启成功."
-            # systemctl status sing-box
         else
             error "服务重启失败，请检查错误日志"
             systemctl status sing-box
             journalctl -u sing-box -o cat -f
         fi
     else
-        error "配置文件检查错误，请检查配置文件"
+        error "配置文件检查错误，根据以下错误，检查配置文件"
         /root/sing-box/sing-box check -c /root/sing-box/sb_config_server.json
     fi
 }
@@ -226,7 +225,7 @@ install_shortcut() {
 bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/sing-box.sh) \$1
 EOF
     chmod +x /root/sing-box/sb.sh
-    ln -sf /root/sing-box/sb.sh /usr/bin/sb
+    ln -sf /root/sing-box/sb.sh /usr/bin/sbox
 }
 
 modify_port() {
@@ -1364,7 +1363,7 @@ if /root/sing-box/sing-box check -c /root/sing-box/sb_config_server.json; then
     systemctl restart sing-box
     install_shortcut
     show_client_configuration
-    warning "输入sb,即可打开菜单"
+    warning "输入sbox,即可打开菜单"
 else
     error "配置文件检查失败，启动失败!"
 fi
