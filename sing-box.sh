@@ -666,7 +666,6 @@ show_client_configuration() {
                         "source_port": 53
                     }
                 ],
-
                 "action": "hijack-dns"
             },
             {
