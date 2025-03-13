@@ -89,14 +89,20 @@ install_pkgs() {
 
 reload_singbox() {
     if /root/sing-box/sing-box check -c /root/sing-box/sb_config_server.json; then
+        echo ""
+        echo ""
         echo "检查配置文件成功，开始重启服务..."
         if systemctl reload sing-box; then
             echo "服务重启成功."
+            systemctl status sing-box
         else
             error "服务重启失败，请检查错误日志"
+            systemctl status sing-box
+            journalctl -u sing-box -o cat -f
         fi
     else
         error "配置文件检查错误，请检查配置文件"
+        /root/sing-box/sing-box check -c /root/sing-box/sb_config_server.json
     fi
 }
 
@@ -675,6 +681,7 @@ show_client_configuration() {
             },
             {
                 "ip_cidr": [
+                    "$server_ip",
                     "192.168.100.1",
                     "1.1.1.1",
                     "1.1.1.3"
