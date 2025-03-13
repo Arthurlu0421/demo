@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain_suffix": [
+        "gimy.app",
+        "gimy.is",
+        "gimy.ai",
+        "gimy.tv"
+      ]
+    },
+    {
+      "domain_keyword": [
+        "gimy",
+        "cdn",
+        "cloudflare"
+      ]
+    }
+  ]
+}
