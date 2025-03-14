@@ -1,4 +1,5 @@
 #!/bin/bash
+# bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/sing-box.sh)
 
 red="\033[31m\033[01m"
 green="\033[32m\033[01m"
