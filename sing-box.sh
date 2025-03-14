@@ -377,10 +377,10 @@ show_client_configuration() {
             "tag": "🚀 节点选择",
             "type": "selector",
             "outbounds": [
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ]
         },
         {
@@ -389,10 +389,10 @@ show_client_configuration() {
             "outbounds": [
                 "🚀 节点选择",
                 "🎯 全球直连",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ],
             "default": "🚀 节点选择"
         },
@@ -402,10 +402,10 @@ show_client_configuration() {
             "outbounds": [
                 "🚀 节点选择",
                 "🎯 全球直连",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ],
             "default": "🎯 全球直连"
         },
@@ -415,10 +415,10 @@ show_client_configuration() {
             "outbounds": [
                 "🚀 节点选择",
                 "🎯 全球直连",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ],
             "default": "🎯 全球直连"
         },
@@ -428,10 +428,10 @@ show_client_configuration() {
             "outbounds": [
                 "🚀 节点选择",
                 "🎯 全球直连",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ],
             "default": "🚀 节点选择"
         },
@@ -441,10 +441,10 @@ show_client_configuration() {
             "outbounds": [
                 "🚀 节点选择",
                 "🎯 全球直连",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ],
             "default": "🚀 节点选择"
         },
@@ -538,10 +538,10 @@ show_client_configuration() {
             "type": "selector",
             "outbounds": [
                 "🚀 节点选择",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ],
             "default": "🚀 节点选择"
         },
