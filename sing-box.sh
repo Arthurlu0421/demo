@@ -369,7 +369,7 @@ show_client_configuration() {
     echo ""
     show_notice "sing-box客户端配置1.11.0及以上"
     show_notice "请下载/root/sing-box/client.json并导入客户端"
-    cat >/root/sing-box/client_${flag}_outbounds.json <<EOF
+    cat >/root/sing-box/client_outbounds.json <<EOF
 {
     "outbounds": [
         {
