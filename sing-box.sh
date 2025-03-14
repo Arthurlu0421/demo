@@ -1194,10 +1194,11 @@ warning "开始配置ShadowTLS..."
 shadowtls_password=$(/root/sing-box/sing-box generate rand --base64 16)
 # info "ShadowTLS的UUID: $shadowtls_uuid"
 info "ShadowTLS密码: $shadowtls_password"
+shadowtls_method="2022-blake3-aes-128-gcm"
 shadowtls_port=$(generate_port "shadowtls" 8443)
 info "生成的端口号: $shadowtls_port"
-read -p "输入握手域名 (默认为: www.bing.com): " shadowtls_handshake_server
-shadowtls_handshake_server=${shadowtls_handshake_server:-www.bing.com}
+read -p "输入握手域名 (默认为: captive.apple.com): " shadowtls_handshake_server
+shadowtls_handshake_server=${shadowtls_handshake_server:-captive.apple.com}
 echo ""
 echo ""
 #get ip
@@ -1224,7 +1225,7 @@ HY2_SERVER_NAME='$hy2_server_name'
 HY2_HOPPING=FALSE
 # ShadowTLS
 SHADOWTLS_PORT='$shadowtls_port'
-# SHADOWTLS_UUID='$shadowtls_uuid'
+SHADOWTLS_METHOD='$shadowtls_method'
 SHADOWTLS_PASSWORD='$shadowtls_password'
 SHADOWTLS_HANDSHAKE_SERVER='$shadowtls_handshake_server'
 EOF
