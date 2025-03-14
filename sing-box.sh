@@ -295,6 +295,7 @@ prefix_tag_ip() {
 # client configuration
 show_client_configuration() {
     server_ip=$(grep -o "SERVER_IP='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
+    flag=$(grep -o "FLAG='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
     reality_tag=$(grep -o "FLAG='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')-Reality
     public_key=$(grep -o "PUBLIC_KEY='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')
     reality_port=$(jq -r '.inbounds[] | select(.tag == "vless-in") | .listen_port' /root/sing-box/sb_config_server.json)
@@ -367,6 +368,189 @@ show_client_configuration() {
     echo ""
     show_notice "sing-box客户端配置1.11.0及以上"
     show_notice "请下载/root/sing-box/client.json并导入客户端"
+    cat >/root/sing-box/client_${flag}_outbounds.json <<EOF
+{
+    "outbounds": [
+        {
+            "tag": "🚀 节点选择",
+            "type": "selector",
+            "outbounds": [
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "♻️ 自动选择"
+            ]
+        },
+        {
+            "tag": "👨‍💻 Github",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "🎯 全球直连",
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "♻️ 自动选择"
+            ],
+            "default": "🚀 节点选择"
+        },
+        {
+            "tag": "🪟 Microsoft",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "🎯 全球直连",
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "♻️ 自动选择"
+            ],
+            "default": "🎯 全球直连"
+        },
+        {
+            "tag": "🍏 Apple",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "🎯 全球直连",
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "♻️ 自动选择"
+            ],
+            "default": "🎯 全球直连"
+        },
+        {
+            "tag": "🎥 Netflix",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "🎯 全球直连",
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "♻️ 自动选择"
+            ],
+            "default": "🚀 节点选择"
+        },
+        {
+            "tag": "🐠 漏网之鱼",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "🎯 全球直连",
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "♻️ 自动选择"
+            ],
+            "default": "🚀 节点选择"
+        },
+        {
+            "tag": "$reality_tag",
+            "type": "vless",
+            "uuid": "$reality_uuid",
+            "flow": "xtls-rprx-vision",
+            "packet_encoding": "xudp",
+            "server": "$server_ip",
+            "server_port": $reality_port,
+            "tls": {
+                "enabled": true,
+                "server_name": "$reality_server_name",
+                "utls": {
+                    "enabled": true,
+                    "fingerprint": "chrome"
+                },
+                "reality": {
+                    "enabled": true,
+                    "public_key": "$public_key",
+                    "short_id": "$short_id"
+                }
+            }
+        },
+        {
+            "tag": "$hy2_tag",
+            "type": "hysteria2",
+            "server": "$server_ip",
+            "server_port": $hy2_port,
+            "password": "$hy2_password",
+            "tls": {
+                "enabled": true,
+                "server_name": "$hy2_server_name",
+                "insecure": true,
+                "alpn": [
+                    "h3"
+                ]
+            }
+        },
+        {
+            "type": "shadowsocks",
+            "tag": "$shadowtls_tag",
+            "method": "2022-blake3-aes-128-gcm",
+            "password": "$shadowtls_password",
+            "detour": "${flag}_shadowtls-out",
+            "udp_over_tcp": false,
+            "multiplex": {
+                "enabled": true,
+                "protocol": "h2mux",
+                "max_connections": 8,
+                "min_streams": 16,
+                "padding": true,
+                "brutal": {
+                    "enabled": false,
+                    "up_mbps": 1000,
+                    "down_mbps": 1000
+                }
+            }
+        },
+        {
+            "type": "shadowtls",
+            "tag": "${flag}_shadowtls-out",
+            "server": "$server_ip",
+            "server_port": $shadowtls_port,
+            "version": 3,
+            "password": "$shadowtls_password",
+            "tls": {
+                "enabled": true,
+                "server_name": "$shadowtls_handshake_server",
+                "utls": {
+                    "enabled": true,
+                    "fingerprint": "chrome"
+                }
+            }
+        },
+        {
+            "tag": "♻️ 自动选择",
+            "type": "urltest",
+            "outbounds": [
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag"
+            ],
+            "url": "http://www.gstatic.com/generate_204",
+            "interval": "10m",
+            "tolerance": 50
+        },
+        {
+            "tag": "GLOBAL",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "♻️ 自动选择"
+            ],
+            "default": "🚀 节点选择"
+        },
+        {
+            "tag": "🎯 全球直连",
+            "type": "direct"
+        }
+    ]
+}
+EOF
+
     cat >/root/sing-box/client.json <<EOF
 {
     "log": {
