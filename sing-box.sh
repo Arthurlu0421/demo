@@ -490,7 +490,7 @@ show_client_configuration() {
             "tag": "$shadowtls_tag",
             "method": "2022-blake3-aes-128-gcm",
             "password": "$shadowtls_password",
-            "detour": "${flag}_shadowtls-out",
+            "detour": "${no_flag}_shadowtls-out",
             "udp_over_tcp": false,
             "multiplex": {
                 "enabled": true,
@@ -507,7 +507,7 @@ show_client_configuration() {
         },
         {
             "type": "shadowtls",
-            "tag": "${flag}_shadowtls-out",
+            "tag": "${no_flag}_shadowtls-out",
             "server": "$server_ip",
             "server_port": $shadowtls_port,
             "version": 3,
@@ -773,7 +773,7 @@ EOF
             "tag": "$shadowtls_tag",
             "method": "2022-blake3-aes-128-gcm",
             "password": "$shadowtls_password",
-            "detour": "shadowtls-out",
+            "detour": "${no_flag}_shadowtls-out",
             "udp_over_tcp": false,
             "multiplex": {
                 "enabled": true,
@@ -790,7 +790,7 @@ EOF
         },
         {
             "type": "shadowtls",
-            "tag": "shadowtls-out",
+            "tag": "${no_flag}_shadowtls-out",
             "server": "$server_ip",
             "server_port": $shadowtls_port,
             "version": 3,
