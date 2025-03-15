@@ -1,0 +1,23 @@
+
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain": [
+        "content.stream-link.org",
+        "error.stream-link.org",
+        "sc2025.stream-link.org"
+      ]
+    },
+    {
+      "domain_suffix": [
+        "stream-link.org"
+      ]
+    },
+    {
+      "keyword": [
+        "aptv"
+      ]
+    }
+  ]
+}
