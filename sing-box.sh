@@ -350,7 +350,7 @@ show_client_configuration() {
 
     # shadowtls
     shadowtls_port=$(jq -r '.inbounds[] | select(.tag == "shadowtls-in") | .listen_port' /root/sing-box/sb_config_server.json)
-    shadowtls_tag=$(grep -o "FLAG='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')-Shadowtls
+    shadowtls_tag=$(grep -o "FLAG='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')-Stls
     # shadowtls_uuid=$(jq -r '.inbounds[] | select(.tag == "shadowtls-in") | .users[0].password' /root/sing-box/sb_config_server.json)
     shadowtls_handshake_server=$(jq -r '.inbounds[] | select(.tag == "shadowtls-in") | .handshake.server' /root/sing-box/sb_config_server.json)
     shadowtls_method=$(jq -r '.inbounds[] | select(.tag == "shadowsocks-in") | .method' /root/sing-box/sb_config_server.json)
@@ -594,20 +594,20 @@ EOF
         ],
         "rules": [
             {
-                "rule_set": [ 
-                    "geosite-category-ads-all",
-                    "my-block"
-                ],
-                "action": "reject",
-                "method": "drop"
-            },
-            {
                 "domain": [
                     "333bbb777bbb.com",
                     "jads.co",
                     "u001.25img.com"
                 ],
                 "action": "reject"
+            },
+            {
+                "rule_set": [ 
+                    "geosite-category-ads-all",
+                    "my-block"
+                ],
+                "action": "reject",
+                "method": "drop"
             },
             {
                 "rule_set": "geosite-cn",
@@ -864,6 +864,14 @@ EOF
                 "outbound": "🎯 全球直连"
             },
             {
+                "domain": [
+                    "333bbb777bbb.com",
+                    "jads.co",
+                    "u001.25img.com"
+                ],
+                "action": "reject"
+            },
+            {
                 "rule_set": [ 
                     "geosite-category-ads-all",
                     "my-block"
@@ -878,14 +886,6 @@ EOF
                     "1.1.1.3"
                 ],
                 "outbound": "🎯 全球直连"
-            },
-            {
-                "domain": [
-                    "333bbb777bbb.com",
-                    "jads.co",
-                    "u001.25img.com"
-                ],
-                "action": "reject"
             },            
             {
                 "rule_set": [
