@@ -114,15 +114,15 @@ install_singbox() {
     version_choice=${version_choice:-1}
     # Set the tag based on user choice
     if [ "$version_choice" -eq 2 ]; then
-        echo "Installing Alpha version..."
+        echo "安装 Alpha 版本..."
         latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==true)][0].tag_name')
     else
-        echo "Installing Stable version..."
+        echo "安装稳定版本..."
         latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==false)][0].tag_name')
     fi
     # No need to fetch the latest version tag again, it's already set based on user choice
     latest_version=${latest_version_tag#v} # Remove 'v' prefix from version number
-    echo "Latest version: $latest_version"
+    echo "最新版本: $latest_version"
     # Detect server architecture
     arch=$(uname -m)
     echo "本机架构为: $arch"
@@ -1385,7 +1385,7 @@ echo ""
 warning "开始配置hysteria2..."
 # echo ""
 hy2_password=$(/root/sing-box/sing-box generate rand --hex 12)
-info "password: $hy2_password"
+info "hy2的密码: $hy2_password"
 # echo ""
 hy2_port=$(generate_port "HYSTERIA2" 18443)
 info "生成的端口号为: $hy2_port"
