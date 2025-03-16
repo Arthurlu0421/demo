@@ -563,7 +563,7 @@ EOF
     },
     "experimental": {
         "clash_api": {
-            "external_controller": "127.0.0.1:9090",
+            "external_controller": "0.0.0.0:9090",
             "external_ui": "ui",
             "secret": "",
             "external_ui_download_url": "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip",
@@ -661,35 +661,35 @@ EOF
             "tag": "🚀 节点选择",
             "type": "selector",
             "outbounds": [
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ]
         },
         {
             "tag": "👨‍💻 Github",
             "type": "selector",
-            "outbounds": [
+            "outbounds": [               
                 "🚀 节点选择",
-                "🎯 全球直连",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
+
             ],
             "default": "🚀 节点选择"
         },
         {
             "tag": "🪟 Microsoft",
             "type": "selector",
-            "outbounds": [
+            "outbounds": [                
                 "🚀 节点选择",
                 "🎯 全球直连",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ],
             "default": "🎯 全球直连"
         },
@@ -697,12 +697,13 @@ EOF
             "tag": "🍏 Apple",
             "type": "selector",
             "outbounds": [
+                "♻️ 自动选择",
                 "🚀 节点选择",
                 "🎯 全球直连",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ],
             "default": "🎯 全球直连"
         },
@@ -711,13 +712,23 @@ EOF
             "type": "selector",
             "outbounds": [
                 "🚀 节点选择",
-                "🎯 全球直连",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ],
             "default": "🚀 节点选择"
+        },
+        {
+            "tag": "📹 APTV",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "♻️ 自动选择",
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag"
+            ]
         },
         {
             "tag": "🐠 漏网之鱼",
@@ -725,10 +736,10 @@ EOF
             "outbounds": [
                 "🚀 节点选择",
                 "🎯 全球直连",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ],
             "default": "🚀 节点选择"
         },
@@ -822,10 +833,10 @@ EOF
             "type": "selector",
             "outbounds": [
                 "🚀 节点选择",
+                "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag",
-                "♻️ 自动选择"
+                "$reality_tag"
             ],
             "default": "🚀 节点选择"
         },
@@ -887,7 +898,11 @@ EOF
                     "1.1.1.3"
                 ],
                 "outbound": "🎯 全球直连"
-            },            
+            }, 
+            {
+                "rule_set": "APTV",
+                "outbound": "📹 APTV"
+            },
             {
                 "rule_set": [
                     "geosite-private",
@@ -1022,7 +1037,7 @@ EOF
                 "format": "binary",
                 "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/netflix.srs",
                 "download_detour": "🚀 节点选择"
-     },
+            },
             {
                 "tag": "my-block",
                 "type": "remote",
@@ -1036,8 +1051,14 @@ EOF
                 "format": "source",
                 "url": "https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/sing-box_my_direct.json",
                 "download_detour": "🚀 节点选择"
+            },
+            {
+                "tag": "APTV",
+                "type": "remote",
+                "format": "source",
+                "url": "https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/stream-link.json",
+                "download_detour": "🚀 节点选择"
             }
-
         ]
     }
 }
