@@ -1314,7 +1314,6 @@ if [ -f "/root/sing-box/sb_config_server.json" ] && [ -f "/root/sing-box/config"
     case $choice in
     1)
         uninstall_singbox
-        warning "case 1 over..."
         ;;
     2)
         modify_singbox
