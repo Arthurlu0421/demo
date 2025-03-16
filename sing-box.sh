@@ -1567,7 +1567,7 @@ WantedBy=multi-user.target
 EOF
 
 if /root/sing-box/sing-box check -c /root/sing-box/sb_config_server.json; then
-    hint "check config profile..."
+    hint "正在检查配置文件......"
     systemctl daemon-reload
     systemctl enable sing-box >/dev/null 2>&1
     systemctl start sing-box
