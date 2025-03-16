@@ -1294,7 +1294,7 @@ install_pkgs
 # Check if reality.json, sing-box, and sing-box.service already exist
 if [ -f "/root/sing-box/sb_config_server.json" ] && [ -f "/root/sing-box/config" ] && [ -f "/root/sing-box/sing-box" ] && [ -f "/etc/systemd/system/sing-box.service" ]; then
     echo ""
-    warning "sing-box-reality-hysteria2-ShadowTLS已安装"
+    warning "sing-box_reality_hysteria2_ShadowTLS已安装"
     show_status
     echo ""
     hint "=======常规配置========="
