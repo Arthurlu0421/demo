@@ -370,6 +370,7 @@ show_client_configuration() {
     echo ""
     show_notice "sing-box客户端配置1.11.0及以上"
     show_notice "请下载/root/sing-box/client.json并导入客户端"
+    # client_${no_flag}_outbounds.json主要用于方便与其它机器的json合并
     cat >/root/sing-box/client_${no_flag}_outbounds.json <<EOF
 {
     "outbounds": [
