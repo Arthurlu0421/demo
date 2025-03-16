@@ -1284,7 +1284,7 @@ disable_hy2hopping() {
 }
 
 #--------------------------------
-print_with_delay "Reality Hysteria2 ShadowTLS 三合一脚本 by Arthur" 0.01
+print_with_delay "Reality Hysteria2 ShadowTLS 三合一脚本 by Arthur&陆一霖" 0.01
 warning "Red Hat系列操作系统运行本脚本,参考以下关闭selinux（RHEL、CentOS、Rocky等）"
 warning "sed -i 's/SELINUX=enforcing/SELINUX=permissive/g' /etc/selinux/config"
 warning "并重启操作系统,再运行本脚本"
