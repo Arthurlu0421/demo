@@ -1129,7 +1129,6 @@ uninstall_singbox() {
     warning "开始卸载..."
     disable_hy2hopping
     systemctl disable --now sing-box >/dev/null 2>&1
-    warning "case uninstall_singbox over..."
     cd /root
     rm -f /etc/systemd/system/sing-box.service
     rm -f /root/sing-box/sb_config_server.json /root/sing-box/sing-box /root/sing-box/sb.sh
