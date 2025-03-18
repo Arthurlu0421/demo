@@ -353,7 +353,6 @@ show_client_configuration() {
     # shadowtls
     shadowtls_port=$(jq -r '.inbounds[] | select(.tag == "shadowtls-in") | .listen_port' /root/sing-box/sb_config_server.json)
     shadowtls_tag=$(grep -o "FLAG='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')-Stls
-    # shadowtls_uuid=$(jq -r '.inbounds[] | select(.tag == "shadowtls-in") | .users[0].password' /root/sing-box/sb_config_server.json)
     shadowtls_handshake_server=$(jq -r '.inbounds[] | select(.tag == "shadowtls-in") | .handshake.server' /root/sing-box/sb_config_server.json)
     shadowtls_method=$(jq -r '.inbounds[] | select(.tag == "shadowsocks-in") | .method' /root/sing-box/sb_config_server.json)
     shadowtls_password=$(jq -r '.inbounds[] | select(.tag == "shadowsocks-in") | .password' /root/sing-box/sb_config_server.json)
@@ -362,7 +361,6 @@ show_client_configuration() {
     echo "------------------------------------"
     echo "服务器ip: $server_ip"
     echo "端口号: $shadowtls_port"
-    # echo "UUID: $shadowtls_uuid"
     echo "加密方法: $shadowtls_method"
     echo "用户密码: $shadowtls_password"
     echo "握手域名: $shadowtls_handshake_server"
@@ -1398,9 +1396,7 @@ echo ""
 echo ""
 # shadowtls
 warning "开始配置ShadowTLS..."
-# shadowtls_uuid=$(/root/sing-box/sing-box generate uuid)
 shadowtls_password=$(/root/sing-box/sing-box generate rand --base64 16)
-# info "ShadowTLS的UUID: $shadowtls_uuid"
 info "ShadowTLS密码: $shadowtls_password"
 shadowtls_method="2022-blake3-aes-128-gcm"
 shadowtls_port=$(generate_port "shadowtls" 8443)
