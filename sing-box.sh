@@ -200,23 +200,33 @@ change_singbox() {
 
 generate_port() {
     local protocol="$1"
-    local default_port="$2" # 新增一个参数，用于指定默认端口
+    local default_port="$2"
 
     while :; do
-        port=$((RANDOM % 10001 + 10000)) # 随机生成一个端口
         read -p "请为 ${protocol} 输入监听端口(默认为 ${default_port}): " user_input
-        port=${user_input:-$default_port} # 如果用户未输入，则使用默认端口
+        local port=${user_input:-$default_port}
 
-        if [[ "$port" =~ ^[0-9]+$ ]]; then           # 检查输入是否为数字
-            if ! ss -tuln | grep -q ":$port\b"; then # 检查端口是否被占用
-                echo "$port"
-                return 0
-            else
-                echo "端口 $port 被占用，请输入其他端口"
-            fi
-        else
-            echo "输入无效，请输入一个数字端口号"
+        # 检查端口格式
+        if [[ ! "$port" =~ ^[0-9]+$ ]]; then
+            echo "错误：端口必须为数字"
+            continue
         fi
+
+        # 检查端口范围
+        if ((port < 1 || port > 65535)); then
+            echo "错误：端口号必须在 1-65535 之间"
+            continue
+        fi
+
+        # 检查端口占用
+        if ss -tuln | grep -q ":${port}\b"; then
+            echo "错误：端口 ${port} 已被占用"
+            [[ -z "$user_input" ]] && echo "注意：默认端口 ${default_port} 被占用，请手动输入新端口"
+            continue
+        fi
+
+        echo "$port"
+        return 0
     done
 }
 
