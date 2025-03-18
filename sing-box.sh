@@ -205,26 +205,22 @@ generate_port() {
     while :; do
         read -p "请为 ${protocol} 输入监听端口(默认为 ${default_port}): " user_input
         local port=${user_input:-$default_port}
-
         # 检查端口格式
         if [[ ! "$port" =~ ^[0-9]+$ ]]; then
             echo "错误：端口必须为数字"
             continue
         fi
-
         # 检查端口范围
         if ((port < 1 || port > 65535)); then
             echo "错误：端口号必须在 1-65535 之间"
             continue
         fi
-
         # 检查端口占用
         if ss -tuln | grep -q ":${port}\b"; then
             echo "错误：端口 ${port} 已被占用"
             [[ -z "$user_input" ]] && echo "注意：默认端口 ${default_port} 被占用，请手动输入新端口"
             continue
         fi
-
         echo "$port"
         return 0
     done
@@ -262,7 +258,6 @@ prefix_tag_ip() {
         echo -n "未知网络节点"
         return 1
     }
-
     # 国家代码转国旗符号
     country_to_flag() {
         case "$1" in
@@ -279,19 +274,16 @@ prefix_tag_ip() {
         *) echo -n "" ;;
         esac
     }
-
     # 获取地理位置信息
     local geo_data status country_name country_code flag ip_head
     geo_data=$(curl -sL "http://ip-api.com/json/$server_ip?fields=status,country,countryCode&lang=zh-CN" 2>/dev/null)
     status=$(jq -r .status <<<"$geo_data" 2>/dev/null)
-
     # 提取IP首段（兼容IPv4/IPv6）
     if [[ "$server_ip" =~ : ]]; then
         ip_head=$(cut -d ':' -f1 <<<"$server_ip")
     else
         ip_head=$(cut -d '.' -f1 <<<"$server_ip")
     fi
-
     # 构建前缀标签
     if [ "$status" = "success" ]; then
         country_name=$(jq -r .country <<<"$geo_data")
