@@ -428,7 +428,6 @@ show_client_configuration() {
             "type": "selector",
             "outbounds": [
                 "🚀 节点选择",
-                "🎯 全球直连",
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
