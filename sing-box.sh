@@ -194,7 +194,7 @@ change_singbox() {
     systemctl daemon-reload
     systemctl start sing-box
 
-    echo "Version switched and service restarted with the new binary."
+    echo "版本切换成功 并且使用新版本程序启动服务成功……"
     echo ""
 }
 
