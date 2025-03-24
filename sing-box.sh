@@ -1283,7 +1283,7 @@ enable_hy2hopping() {
     sed -i "s/HY2_HOPPING=FALSE/HY2_HOPPING=TRUE/" /root/sing-box/config
     sed -i "s/HY2_HOPPING_PORTS=NULL/HY2_HOPPING_PORTS=${start_port}:${end_port}/" /root/sing-box/config
     #更新客户端配置文件,增加server_ports参数
-    sed -i '/"server_port": [0-9]\+/,+0 s/$/\n            "server_ports": [\n              "'$start_port':'$end_port'"\n            ],/' /root/sing-box/client.json
+    sed -i '/"type": "hysteria2"/,/}/!b;/"server_port": [0-9]\+/,+0 s/$/\n            "server_ports": [\n              "'$start_port':'$end_port'"\n            ],/' /root/sing-box/client.json
 }
 
 disable_hy2hopping() {
@@ -1293,7 +1293,7 @@ disable_hy2hopping() {
     sed -i "s/HY2_HOPPING=TRUE/HY2_HOPPING=FALSE/" /root/sing-box/config
     sed -i "s/HY2_HOPPING_PORTS=[0-9]\+:[0-9]\+/HY2_HOPPING_PORTS=NULL/" /root/sing-box/config
     #更新客户端配置文件,删除server_ports参数
-    sed -i '/"server_ports": \[/,/\],/d' /root/sing-box/client.json
+    sed -i '/"type": "hysteria2"/,/}/!b;/"server_ports": \[/,/\],/d' /root/sing-box/client.json
     echo "关闭完成"
 }
 
