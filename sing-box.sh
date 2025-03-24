@@ -449,43 +449,6 @@ show_client_configuration() {
             "default": "🚀 节点选择"
         },
         {
-            "tag": "$reality_tag",
-            "type": "vless",
-            "uuid": "$reality_uuid",
-            "flow": "xtls-rprx-vision",
-            "packet_encoding": "xudp",
-            "server": "$server_ip",
-            "server_port": $reality_port,
-            "tls": {
-                "enabled": true,
-                "server_name": "$reality_server_name",
-                "utls": {
-                    "enabled": true,
-                    "fingerprint": "chrome"
-                },
-                "reality": {
-                    "enabled": true,
-                    "public_key": "$public_key",
-                    "short_id": "$short_id"
-                }
-            }
-        },
-        {
-            "tag": "$hy2_tag",
-            "type": "hysteria2",
-            "server": "$server_ip",
-            "server_port": $hy2_port,
-            "password": "$hy2_password",
-            "tls": {
-                "enabled": true,
-                "server_name": "$hy2_server_name",
-                "insecure": true,
-                "alpn": [
-                    "h3"
-                ]
-            }
-        },
-        {
             "tag": "$shadowtls_tag",
             "type": "shadowsocks",
             "method": "2022-blake3-aes-128-gcm",
@@ -518,6 +481,43 @@ show_client_configuration() {
                 "utls": {
                     "enabled": true,
                     "fingerprint": "chrome"
+                }
+            }
+        },
+        {
+            "tag": "$hy2_tag",
+            "type": "hysteria2",
+            "server": "$server_ip",
+            "server_port": $hy2_port,
+            "password": "$hy2_password",
+            "tls": {
+                "enabled": true,
+                "server_name": "$hy2_server_name",
+                "insecure": true,
+                "alpn": [
+                    "h3"
+                ]
+            }
+        },
+        {
+            "tag": "$reality_tag",
+            "type": "vless",
+            "uuid": "$reality_uuid",
+            "flow": "xtls-rprx-vision",
+            "packet_encoding": "xudp",
+            "server": "$server_ip",
+            "server_port": $reality_port,
+            "tls": {
+                "enabled": true,
+                "server_name": "$reality_server_name",
+                "utls": {
+                    "enabled": true,
+                    "fingerprint": "chrome"
+                },
+                "reality": {
+                    "enabled": true,
+                    "public_key": "$public_key",
+                    "short_id": "$short_id"
                 }
             }
         },
@@ -743,43 +743,6 @@ EOF
             "default": "🚀 节点选择"
         },
         {
-            "tag": "$reality_tag",
-            "type": "vless",
-            "uuid": "$reality_uuid",
-            "flow": "xtls-rprx-vision",
-            "packet_encoding": "xudp",
-            "server": "$server_ip",
-            "server_port": $reality_port,
-            "tls": {
-                "enabled": true,
-                "server_name": "$reality_server_name",
-                "utls": {
-                    "enabled": true,
-                    "fingerprint": "chrome"
-                },
-                "reality": {
-                    "enabled": true,
-                    "public_key": "$public_key",
-                    "short_id": "$short_id"
-                }
-            }
-        },
-        {
-            "tag": "$hy2_tag",
-            "type": "hysteria2",
-            "server": "$server_ip",
-            "server_port": $hy2_port,
-            "password": "$hy2_password",
-            "tls": {
-                "enabled": true,
-                "server_name": "$hy2_server_name",
-                "insecure": true,
-                "alpn": [
-                    "h3"
-                ]
-            }
-        },
-        {
             "type": "shadowsocks",
             "tag": "$shadowtls_tag",
             "method": "2022-blake3-aes-128-gcm",
@@ -812,6 +775,43 @@ EOF
                 "utls": {
                     "enabled": true,
                     "fingerprint": "chrome"
+                }
+            }
+        },
+        {
+            "tag": "$hy2_tag",
+            "type": "hysteria2",
+            "server": "$server_ip",
+            "server_port": $hy2_port,
+            "password": "$hy2_password",
+            "tls": {
+                "enabled": true,
+                "server_name": "$hy2_server_name",
+                "insecure": true,
+                "alpn": [
+                    "h3"
+                ]
+            }
+        },
+        {
+            "tag": "$reality_tag",
+            "type": "vless",
+            "uuid": "$reality_uuid",
+            "flow": "xtls-rprx-vision",
+            "packet_encoding": "xudp",
+            "server": "$server_ip",
+            "server_port": $reality_port,
+            "tls": {
+                "enabled": true,
+                "server_name": "$reality_server_name",
+                "utls": {
+                    "enabled": true,
+                    "fingerprint": "chrome"
+                },
+                "reality": {
+                    "enabled": true,
+                    "public_key": "$public_key",
+                    "short_id": "$short_id"
                 }
             }
         },
