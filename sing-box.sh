@@ -227,12 +227,12 @@ generate_port() {
 }
 
 install_shortcut() {
-     cat >/root/sing-box/sb.sh <<EOF
+     cat >/root/sing-box/sbox.sh <<EOF
  #!/usr/bin/env bash
 bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/sing-box.sh) \$1
 EOF
-    chmod +x /root/sing-box/sb.sh
-    ln -sf /root/sing-box/sb.sh /usr/bin/sbox
+    chmod +x /root/sing-box/sbox.sh
+    ln -sf /root/sing-box/sbox.sh /usr/bin/sbox
 }
 
 modify_port() {
@@ -1141,7 +1141,7 @@ uninstall_singbox() {
     systemctl disable --now sing-box >/dev/null 2>&1
     cd /root
     rm -f /etc/systemd/system/sing-box.service
-    rm -f /root/sing-box/sb_config_server.json /root/sing-box/sing-box /root/sing-box/sb.sh
+    rm -f /root/sing-box/sb_config_server.json /root/sing-box/sing-box /root/sing-box/sbox.sh
     rm -f /usr/bin/sb /root/sing-box/self-cert/private.key /root/sing-box/self-cert/cert.pem /root/sing-box/config
     rm -rf /root/sing-box/self-cert/ /root/sing-box/
     warning "卸载完成"
@@ -1281,6 +1281,9 @@ enable_hy2hopping() {
     ip6tables -t nat -A PREROUTING -i eth0 -p udp --dport "$start_port":"$end_port" -j DNAT --to-destination :"$hy2_current_port"
 
     sed -i "s/HY2_HOPPING=FALSE/HY2_HOPPING=TRUE/" /root/sing-box/config
+    sed -i "s/HY2_HOPPING_PORTS=NULL/HY2_HOPPING_PORTS=${start_port}:${end_port}/" /root/sing-box/config
+    #更新客户端配置文件,增加server_ports参数
+    sed -i '/"server_port": [0-9]\+/,+0 s/$/\n            "server_ports": [\n              "'$start_port':'$end_port'"\n            ],/' /root/sing-box/client.json
 }
 
 disable_hy2hopping() {
@@ -1288,8 +1291,9 @@ disable_hy2hopping() {
     iptables -t nat -F PREROUTING >/dev/null 2>&1
     ip6tables -t nat -F PREROUTING >/dev/null 2>&1
     sed -i "s/HY2_HOPPING=TRUE/HY2_HOPPING=FALSE/" /root/sing-box/config
-    #TOREMOVE compatible with legacy users
-    sed -i "s/HY2_HOPPING='TRUE'/HY2_HOPPING=FALSE/" /root/sing-box/config
+    sed -i "s/HY2_HOPPING_PORTS=[0-9]\+:[0-9]\+/HY2_HOPPING_PORTS=NULL/" /root/sing-box/config
+    #更新客户端配置文件,删除server_ports参数
+    sed -i '/"server_ports": \[/,/\],/d' /root/sing-box/client.json
     echo "关闭完成"
 }
 
@@ -1437,6 +1441,7 @@ HY2_PASSWORD='$hy2_password'
 HY2_PORT='$hy2_port'
 HY2_SERVER_NAME='$hy2_server_name'
 HY2_HOPPING=FALSE
+HY2_HOPPING_PORTS=NULL
 # ShadowTLS
 SHADOWTLS_PORT='$shadowtls_port'
 SHADOWTLS_METHOD='$shadowtls_method'
