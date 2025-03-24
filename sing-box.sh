@@ -436,6 +436,17 @@ show_client_configuration() {
             "default": "🚀 节点选择"
         },
         {
+            "tag": "📹 APTV",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "♻️ 自动选择",
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag"
+            ]
+        },
+        {
             "tag": "🐠 漏网之鱼",
             "type": "selector",
             "outbounds": [
