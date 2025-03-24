@@ -754,8 +754,8 @@ EOF
             "default": "🚀 节点选择"
         },
         {
-            "type": "shadowsocks",
             "tag": "$shadowtls_tag",
+            "type": "shadowsocks",
             "method": "2022-blake3-aes-128-gcm",
             "password": "$shadowtls_password",
             "detour": "${no_flag}_shadowtls-out",
@@ -774,8 +774,8 @@ EOF
             }
         },
         {
-            "type": "shadowtls",
             "tag": "${no_flag}_shadowtls-out",
+            "type": "shadowtls",
             "server": "$server_ip",
             "server_port": $shadowtls_port,
             "version": 3,
