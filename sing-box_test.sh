@@ -58,7 +58,7 @@ show_status() {
         info "sing-box测试版最新版本: $p_latest_version"
         info "sing-box正式版最新版本: $latest_version"
         info "sing-box当前版本(输入4管理切换): $(/root/sing-box/sing-box version 2>/dev/null | awk '/version/{print $NF}')"
-        info "hy2端口跳跃(输入6管理): $(if [ "$hy2hop" == "TRUE" ]; then echo "开启"; else echo "关闭"; fi)"
+        info "hy2端口跳跃(输入7管理): $(if [ "$hy2hop" == "TRUE" ]; then echo "开启"; else echo "关闭"; fi)"
         hint "========================="
     else
         warning "SING-BOX 未运行！"
@@ -768,7 +768,7 @@ EOF
                 "padding": true,
                 "brutal": {
                     "enabled": false,
-                    "up_mbps": 1000,
+                    "up_mbps": 500,
                     "down_mbps": 1000
                 }
             }
@@ -808,7 +808,7 @@ EOF
             "tag": "$reality_tag",
             "type": "vless",
             "uuid": "$reality_uuid",
-            "flow": "xtls-rprx-vision",
+            "flow": "",
             "packet_encoding": "xudp",
             "server": "$server_ip",
             "server_port": $reality_port,
@@ -824,6 +824,18 @@ EOF
                     "public_key": "$public_key",
                     "short_id": "$short_id"
                 }
+            },
+            "multiplex": {
+                "enabled": true,
+                "protocol": "h2mux",
+                "max_connections": 1,
+                "min_streams": 4,
+                "padding": true,
+                "brutal": {
+                    "enabled": true,
+                    "up_mbps": 300,
+                    "down_mbps": 1000
+               }
             }
         },
         {
@@ -1081,6 +1093,12 @@ enable_bbr() {
     echo ""
 }
 
+
+enable_TCPBrutal() {
+    bash <(curl -fsSL https://tcp.hy2.sh/)
+    echo ""
+}
+
 modify_singbox() {
     echo ""
     warning "开始修改VISION_REALITY 端口号和域名"
@@ -1283,7 +1301,7 @@ enable_hy2hopping() {
     sed -i "s/HY2_HOPPING=FALSE/HY2_HOPPING=TRUE/" /root/sing-box/config
     sed -i "s/HY2_HOPPING_PORTS=NULL/HY2_HOPPING_PORTS=${start_port}:${end_port}/" /root/sing-box/config
     #更新客户端配置文件,增加server_ports参数
-    sed -i '/"server_port": [0-9]\+/,+0 s/$/\n            "server_ports": [\n              "'$start_port':'$end_port'"\n            ],/' /root/sing-box/client.json
+    sed -i '/"type": "hysteria2"/,/}/!b;/"server_port": [0-9]\+/,+0 s/$/\n            "server_ports": [\n              "'$start_port':'$end_port'"\n            ],/' /root/sing-box/client.json
 }
 
 disable_hy2hopping() {
@@ -1293,12 +1311,12 @@ disable_hy2hopping() {
     sed -i "s/HY2_HOPPING=TRUE/HY2_HOPPING=FALSE/" /root/sing-box/config
     sed -i "s/HY2_HOPPING_PORTS=[0-9]\+:[0-9]\+/HY2_HOPPING_PORTS=NULL/" /root/sing-box/config
     #更新客户端配置文件,删除server_ports参数
-    sed -i '/"server_ports": \[/,/\],/d' /root/sing-box/client.json
+    sed -i '/"type": "hysteria2"/,/}/!b;/"server_ports": \[/,/\],/d' /root/sing-box/client.json
     echo "关闭完成"
 }
 
 #--------------------------------
-print_with_delay "Reality Hysteria2 ShadowTLS 三合一脚本 by Arthur&Elam" 0.01
+print_with_delay "Vless+Brutal Hysteria2 ShadowTLS 三合一脚本 by Arthur" 0.02
 warning "Red Hat系列操作系统运行本脚本,参考以下关闭selinux（RHEL、CentOS、Rocky等）"
 warning "sed -i 's/SELINUX=enforcing/SELINUX=permissive/g' /etc/selinux/config"
 warning "并重启操作系统,再运行本脚本"
@@ -1308,7 +1326,7 @@ install_pkgs
 # Check if reality.json, sing-box, and sing-box.service already exist
 if [ -f "/root/sing-box/sb_config_server.json" ] && [ -f "/root/sing-box/config" ] && [ -f "/root/sing-box/sing-box" ] && [ -f "/etc/systemd/system/sing-box.service" ]; then
     echo ""
-    warning "sing-box_reality_hysteria2_ShadowTLS已安装"
+    warning "sing-box_Vless+Brutal_hysteria2_ShadowTLS已安装"
     show_status
     echo ""
     hint "=======常规配置========="
@@ -1318,12 +1336,13 @@ if [ -f "/root/sing-box/sb_config_server.json" ] && [ -f "/root/sing-box/config"
     info "3. 显示客户端配置"
     info "4. sing-box基础操作"
     info "5. 一键开启bbr"
-    info "6. hysteria2端口跳跃"
+    info "6. 一键开启TCPBrutal"
+    info "7. hysteria2端口跳跃"
     info "0. 卸载"
     echo ""
     hint "========================="
     echo ""
-    read -p "请输入对应数字 (0-6): " choice
+    read -p "请输入对应数字 (0-7): " choice
 
     case $choice in
     1)
@@ -1332,7 +1351,6 @@ if [ -f "/root/sing-box/sb_config_server.json" ] && [ -f "/root/sing-box/config"
     2)
         modify_singbox
         show_client_configuration
-        warning "case 2 over..."
         exit 0
         ;;
     3)
@@ -1348,6 +1366,10 @@ if [ -f "/root/sing-box/sb_config_server.json" ] && [ -f "/root/sing-box/config"
         exit 0
         ;;
     6)
+        enable_TCPBrutal
+        exit 0
+        ;;
+    7)
         process_hy2hopping
         exit 0
         ;;
@@ -1368,7 +1390,7 @@ install_singbox
 echo ""
 echo ""
 
-warning "开始配置VISION_REALITY..."
+warning "开始配置Vless+Brutal..."
 key_pair=$(/root/sing-box/sing-box generate reality-keypair)
 private_key=$(echo "$key_pair" | awk '/PrivateKey/ {print $2}' | tr -d '"')
 public_key=$(echo "$key_pair" | awk '/PublicKey/ {print $2}' | tr -d '"')
@@ -1402,8 +1424,8 @@ info "hy2的密码: $hy2_password"
 # echo ""
 hy2_port=$(generate_port "HYSTERIA2" 18443)
 info "生成的端口号为: $hy2_port"
-read -p "输入自签证书域名 (默认为: bing.com): " hy2_server_name
-hy2_server_name=${hy2_server_name:-bing.com}
+read -p "输入自签证书域名 (默认为: www.bing.com): " hy2_server_name
+hy2_server_name=${hy2_server_name:-www.bing.com}
 mkdir -p /root/sing-box/self-cert/ && openssl ecparam -genkey -name prime256v1 -out /root/sing-box/self-cert/private.key && openssl req -new -x509 -days 36500 -key /root/sing-box/self-cert/private.key -out /root/sing-box/self-cert/cert.pem -subj "/CN=${hy2_server_name}"
 info "自签证书生成完成,保存于/root/sing-box/self-cert/"
 echo ""
@@ -1468,7 +1490,7 @@ cat >/root/sing-box/sb_config_server.json <<EOF
       "users": [
         {
           "uuid": "$reality_uuid",
-          "flow": "xtls-rprx-vision"
+          "flow": ""
         }
       ],
       "tls": {
@@ -1484,6 +1506,15 @@ cat >/root/sing-box/sb_config_server.json <<EOF
           "short_id": [
             "$short_id"
           ]
+        }
+      },
+      "multiplex": {
+        "enabled": true,
+        "padding": true,
+        "brutal": {
+          "enabled": true,
+          "up_mbps": 500,
+          "down_mbps": 1000
         }
       }
     },
