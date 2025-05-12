@@ -1282,6 +1282,10 @@ enable_hy2hopping() {
 
     # 自动保存规则（Debian/Ubuntu示例）
     if [ -x "$(command -v iptables-save)" ]; then
+        # 确保目录存在
+        mkdir -p /etc/iptables
+        chmod 700 /etc/iptables
+        
         iptables-save > /etc/iptables/rules.v4
         ip6tables-save > /etc/iptables/rules.v6
         echo "规则已永久保存"
