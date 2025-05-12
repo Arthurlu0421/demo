@@ -1280,6 +1280,15 @@ enable_hy2hopping() {
     iptables -t nat -A PREROUTING -i eth0 -p udp --dport "$start_port":"$end_port" -j DNAT --to-destination :"$hy2_current_port"
     ip6tables -t nat -A PREROUTING -i eth0 -p udp --dport "$start_port":"$end_port" -j DNAT --to-destination :"$hy2_current_port"
 
+    # 自动保存规则（Debian/Ubuntu示例）
+    if [ -x "$(command -v iptables-save)" ]; then
+        iptables-save > /etc/iptables/rules.v4
+        ip6tables-save > /etc/iptables/rules.v6
+        echo "规则已永久保存"
+    else
+        echo "警告：未找到iptables-persistent，规则仅在本次生效" >&2
+    fi  
+
     sed -i "s/HY2_HOPPING=FALSE/HY2_HOPPING=TRUE/" /root/sing-box/config
     sed -i "s/HY2_HOPPING_PORTS=NULL/HY2_HOPPING_PORTS=${start_port}:${end_port}/" /root/sing-box/config
     #更新客户端配置文件,增加server_ports参数
