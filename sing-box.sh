@@ -42,8 +42,8 @@ show_status() {
         cpu_usage=$(ps -p "$singbox_pid" -o %cpu | tail -n 1)
         memory_usage_mb=$(($(ps -p "$singbox_pid" -o rss | tail -n 1) / 1024))
 
-        p_latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==true)][0].tag_name')
-        latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r '[.[] | select(.prerelease==false)][0].tag_name')
+        p_latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r 'first(.[] | select(.prerelease==true)) | .tag_name')
+        latest_version_tag=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | jq -r ''first(.[] | select(.prerelease==false)) | .tag_name')
 
         latest_version=${latest_version_tag#v}     # Remove 'v' prefix from version number
         p_latest_version=${p_latest_version_tag#v} # Remove 'v' prefix from version number
