@@ -7,11 +7,17 @@
         "fans.91selfie.com",
         "333bbb777bbb.com",
         "jads.co",
+        "sm.cn",
+        "fq.qeynadq.top",
+        "fa.utbjqda.top",
+        "ex.jnjcoiv.cn",
+        "tl.kahfquy.top",
+        "ads.superad.cc",
+        "fz.pqeajk.top",
         "u001.25img.com",
         "tz.erghsasq.top",
         "ya.qeshfm.cn",
         "56366.net",
-        "tq.qwehkg.top",
         "tq.qwehkg.top",
         "a.dajiahao21.top",
         "ta.dqgjla.top",
@@ -58,13 +64,6 @@
       "port": [
         21114
       ]
-    },
-    {
-      "protocol": ["websocket"],
-      "headers": {
-        "Sec-WebSocket-Key": "*",
-        "Origin": "https://gimy.tv"
-      }
     }
   ]
 }
