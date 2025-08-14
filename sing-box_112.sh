@@ -1818,7 +1818,6 @@ cat >/root/sing-box/sb_config_server.json <<EOF
         "strategy": "ipv4_only"
       }
     }
-    }
   ],
   "route": {
     "auto_detect_interface": true,
