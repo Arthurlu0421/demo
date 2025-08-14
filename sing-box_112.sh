@@ -1805,7 +1805,7 @@ cat >/root/sing-box/sb_config_server.json <<EOF
         "enabled": true,
         "server_name": "$anytls_server_name",
         "certificate_path": "/root/sing-box/anytls-cert/cert.pem",
-        "key_path": "/root/sing-box/anytl-cert/private.key"
+        "key_path": "/root/sing-box/anytls-cert/private.key"
       }
     }
   ],
