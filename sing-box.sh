@@ -1,5 +1,5 @@
 #!/bin/bash
-# bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/sing-box.sh)
+# bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/sing-box_112.sh)
 
 red="\033[31m\033[01m"
 green="\033[32m\033[01m"
@@ -229,7 +229,7 @@ generate_port() {
 install_shortcut() {
      cat >/root/sing-box/sbox.sh <<EOF
  #!/usr/bin/env bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/sing-box.sh) \$1
+bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/sing-box_112.sh) \$1
 EOF
     chmod +x /root/sing-box/sbox.sh
     ln -sf /root/sing-box/sbox.sh /usr/bin/sbox
@@ -366,9 +366,26 @@ show_client_configuration() {
     echo "握手域名: $shadowtls_handshake_server"
     echo "------------------------------------"
 
+    # anytls
+    anytls_port=$(jq -r '.inbounds[] | select(.tag == "anytls-in") | .listen_port' /root/sing-box/sb_config_server.json)
+    anytls_tag=$(grep -o "FLAG='[^']*'" /root/sing-box/config | awk -F"'" '{print $2}')-Anytls
+	anytls_name=$(jq -r '.inbounds[] | select(.tag == "anytls-in") | .users[] | .name' /root/sing-box/sb_config_server.json)
+	anytls_password=$(jq -r '.inbounds[] | select(.tag == "anytls-in") | .users[] | .password' /root/sing-box/sb_config_server.json)
+    anytls_server_name=$(jq -r '.inbounds[] | select(.tag == "anytls-in") | .tls.server_name' /root/sing-box/sb_config_server.json)
+    echo ""
+    info "Anytls 客户端通用参数如下"
+    echo "------------------------------------"
+    echo "服务器ip: $server_ip"
+    echo "端口号: $anytls_port"
+    echo "用户: $anytls_name"
+    echo "密码: $anytls_password"
+    echo "域名: $anytls_handshake_server"
+	echo "跳过证书验证（允许不安全）: True"
+    echo "------------------------------------"
+
     echo ""
     echo ""
-    show_notice "sing-box客户端配置1.11.0及以上"
+    show_notice "sing-box客户端配置1.12.0及以上"
     show_notice "请下载/root/sing-box/client.json并导入客户端"
     # client_${no_flag}_outbounds.json主要用于方便与其它机器的json合并
     cat >/root/sing-box/client_${no_flag}_outbounds.json <<EOF
@@ -381,7 +398,8 @@ show_client_configuration() {
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
+                "$reality_tag",
+				"$anytls_tag"
             ]
         },
         {
@@ -389,11 +407,12 @@ show_client_configuration() {
             "type": "selector",
             "outbounds": [
                 "🚀 节点选择",
-                "🎯 全球直连",
+                "🌏 全球直连",
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
+                "$reality_tag",
+				"$anytls_tag"
             ],
             "default": "🚀 节点选择"
         },
@@ -402,27 +421,43 @@ show_client_configuration() {
             "type": "selector",
             "outbounds": [
                 "🚀 节点选择",
-                "🎯 全球直连",
+                "🌏 全球直连",
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
+                "$reality_tag",
+				"$anytls_tag"
             ],
-            "default": "🎯 全球直连"
+            "default": "🌏 全球直连"
         },
         {
             "tag": "🍏 Apple",
             "type": "selector",
             "outbounds": [
                 "🚀 节点选择",
-                "🎯 全球直连",
+                "🌏 全球直连",
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
+                "$reality_tag",
+				"$anytls_tag"
             ],
-            "default": "🎯 全球直连"
+            "default": "🌏 全球直连"
         },
+		{
+            "tag": "🔥 YouTube",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "🌏 全球直连",
+                "♻️ 自动选择",
+				"$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+				"$anytls_tag"
+			],
+			"default": "🚀 节点选择"
+		},
         {
             "tag": "🎥 Netflix",
             "type": "selector",
@@ -431,10 +466,39 @@ show_client_configuration() {
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
+                "$reality_tag",
+				"$anytls_tag"
             ],
-            "default": "🚀 节点选择"
+			"default": "🚀 节点选择"
         },
+		{
+            "tag": "🤖 openAI",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "🌏 全球直连",
+                "♻️ 自动选择",
+				"$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+				"$anytls_tag"
+			],
+			"default": "🚀 节点选择"
+		},
+		{
+            "tag": "🎦 self-Videos",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "🌏 全球直连",
+                "♻️ 自动选择",
+				"$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+				"$anytls_tag"
+			],
+			"default": "🚀 节点选择"
+		},
         {
             "tag": "📹 APTV",
             "type": "selector",
@@ -443,19 +507,48 @@ show_client_configuration() {
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
-            ]
+                "$reality_tag",
+				"$anytls_tag"
+            ],
+			"default": "🚀 节点选择"
         },
         {
             "tag": "🐠 漏网之鱼",
             "type": "selector",
             "outbounds": [
                 "🚀 节点选择",
-                "🎯 全球直连",
+                "🌏 全球直连",
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
+                "$reality_tag",
+				"$anytls_tag"
+            ],
+            "default": "🚀 节点选择"
+        },
+		{
+            "tag": "♻️ 自动选择",
+            "type": "urltest",
+            "outbounds": [
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+				"$anytls_tag"
+            ],
+            "url": "http://www.gstatic.com/generate_204",
+            "interval": "10m",
+            "tolerance": 50
+        },
+        {
+            "tag": "GLOBAL",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "♻️ 自动选择",
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+				"$anytls_tag"
             ],
             "default": "🚀 节点选择"
         },
@@ -532,32 +625,20 @@ show_client_configuration() {
                 }
             }
         },
-        {
-            "tag": "♻️ 自动选择",
-            "type": "urltest",
-            "outbounds": [
-                "$shadowtls_tag",
-                "$hy2_tag",
-                "$reality_tag"
-            ],
-            "url": "http://www.gstatic.com/generate_204",
-            "interval": "10m",
-            "tolerance": 50
+		{
+            "tag": "$anytls_tag",
+			"type": "anytls",
+            "server": "$server_ip",
+            "server_port": $anytls_port,
+            "password": "$anytls_password",
+            "tls": {
+                "enabled": true,
+                "server_name": "$anytls_server_name",
+                "insecure": true
+            }
         },
         {
-            "tag": "GLOBAL",
-            "type": "selector",
-            "outbounds": [
-                "🚀 节点选择",
-                "♻️ 自动选择",
-                "$shadowtls_tag",
-                "$hy2_tag",
-                "$reality_tag"
-            ],
-            "default": "🚀 节点选择"
-        },
-        {
-            "tag": "🎯 全球直连",
+            "tag": "🌏 全球直连",
             "type": "direct"
         }
     ]
@@ -569,6 +650,7 @@ EOF
     "log": {
         "disabled": false,
         "level": "info",
+        "output": "box.log",
         "timestamp": true
     },
     "experimental": {
@@ -583,23 +665,21 @@ EOF
         "cache_file": {
             "enabled": true,
             "path": "cache.db",
-            "store_fakeip": false
+            "store_fakeip": false,
+			"store_rdrc": false
         }
     },
     "dns": {
         "servers": [
             {
-                "tag": "dns_direct",
-                "address": "tls://223.5.5.5",
-                "address_strategy": "ipv4_only",
-                "strategy": "ipv4_only",
-                "detour": "🎯 全球直连"
+                "tag": "ali-dns",
+                "type": "https",
+                "server": "223.5.5.5"
             },
             {
-                "tag": "dns_proxy",
-                "address": "https://8.8.8.8/dns-query",
-                "address_strategy": "ipv4_only",
-                "strategy": "ipv4_only",
+                "tag": "google-dns",
+                "type": "https",
+                "server": "dns.google",
                 "detour": "🚀 节点选择"
             }
         ],
@@ -607,13 +687,21 @@ EOF
             {
                 "domain": [
                     "333bbb777bbb.com",
+                    "s.magsrv.com",
+                    "gifshow.com",
+                    "ssp-sdk-config.uc.cn",
+                    "xlog.jd.com",
+                    "dsp-x.jd.com",
+                    "partner.uc.cn",
+                    "sm.cn",
                     "jads.co",
-                    "u001.25img.com"
+                    "u001.25img.com",
+                    "fans.91selfie.com"
                 ],
                 "action": "reject"
             },
             {
-                "rule_set": [ 
+                "rule_set": [
                     "geosite-category-ads-all",
                     "my-block"
                 ],
@@ -623,24 +711,26 @@ EOF
             {
                 "rule_set": "geosite-cn",
                 "action": "route",
-                "server": "dns_direct"
+                "server": "ali-dns"
             },
             {
                 "clash_mode": "direct",
-                "server": "dns_direct"
+                "server": "ali-dns"
             },
             {
                 "clash_mode": "global",
-                "server": "dns_proxy"
+                "server": "google-dns"
             },
             {
                 "rule_set": "geosite-geolocation-!cn",
-                "server": "dns_proxy"
+                "server": "google-dns"
             }
         ],
-        "final": "dns_proxy",
-        "disable_cache": true,
-        "strategy": "ipv4_only"
+        "final": "google-dns",
+        "disable_cache": false,
+        "strategy": "ipv4_only",
+        "disable_expire": false,
+        "independent_cache": true
     },
     "inbounds": [
         {
@@ -658,12 +748,6 @@ EOF
                     "server_port": 2080
                 }
             }
-        },
-        {
-            "type": "mixed",
-            "listen": "127.0.0.1",
-            "listen_port": 2080,
-            "users": []
         }
     ],
     "outbounds": [
@@ -674,49 +758,66 @@ EOF
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
+                "$reality_tag",
+                "$anytls_tag"
             ]
         },
         {
             "tag": "👨‍💻 Github",
             "type": "selector",
-            "outbounds": [               
+            "outbounds": [
                 "🚀 节点选择",
+                "🌏 全球直连",
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
-
+                "$reality_tag",
+                "$anytls_tag"
             ],
             "default": "🚀 节点选择"
         },
         {
             "tag": "🪟 Microsoft",
             "type": "selector",
-            "outbounds": [                
+            "outbounds": [
                 "🚀 节点选择",
-                "🎯 全球直连",
+                "🌏 全球直连",
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
+                "$reality_tag",
+                "$anytls_tag"
             ],
-            "default": "🎯 全球直连"
+            "default": "🌏 全球直连"
         },
         {
             "tag": "🍏 Apple",
             "type": "selector",
             "outbounds": [
-                "♻️ 自动选择",
                 "🚀 节点选择",
-                "🎯 全球直连",
+                "🌏 全球直连",
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
+                "$reality_tag",
+                "$anytls_tag"
             ],
-            "default": "🎯 全球直连"
+            "default": "🌏 全球直连"
         },
+		{
+            "tag": "🔥 YouTube",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "🌏 全球直连",
+                "♻️ 自动选择",
+				"$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "$anytls_tag"
+			],
+			"default": "🚀 节点选择"
+		},
         {
             "tag": "🎥 Netflix",
             "type": "selector",
@@ -725,10 +826,39 @@ EOF
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
+                "$reality_tag",
+                "$anytls_tag"
             ],
-            "default": "🚀 节点选择"
+			"default": "🚀 节点选择"
         },
+		{
+            "tag": "🤖 openAI",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "🌏 全球直连",
+                "♻️ 自动选择",
+				"$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "$anytls_tag"
+			],
+			"default": "🚀 节点选择"
+		},
+		{
+            "tag": "🎦 self-Videos",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "🌏 全球直连",
+                "♻️ 自动选择",
+				"$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "$anytls_tag"
+			],
+			"default": "🚀 节点选择"
+		},
         {
             "tag": "📹 APTV",
             "type": "selector",
@@ -737,19 +867,48 @@ EOF
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
-            ]
+                "$reality_tag",
+                "$anytls_tag"
+            ],
+			"default": "🚀 节点选择"
         },
         {
             "tag": "🐠 漏网之鱼",
             "type": "selector",
             "outbounds": [
                 "🚀 节点选择",
-                "🎯 全球直连",
+                "🌏 全球直连",
                 "♻️ 自动选择",
                 "$shadowtls_tag",
                 "$hy2_tag",
-                "$reality_tag"
+                "$reality_tag",
+                "$anytls_tag"
+            ],
+            "default": "🚀 节点选择"
+        },
+		{
+            "tag": "♻️ 自动选择",
+            "type": "urltest",
+            "outbounds": [
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "$anytls_tag"
+            ],
+            "url": "http://www.gstatic.com/generate_204",
+            "interval": "10m",
+            "tolerance": 50
+        },
+        {
+            "tag": "GLOBAL",
+            "type": "selector",
+            "outbounds": [
+                "🚀 节点选择",
+                "♻️ 自动选择",
+                "$shadowtls_tag",
+                "$hy2_tag",
+                "$reality_tag",
+                "$anytls_tag"
             ],
             "default": "🚀 节点选择"
         },
@@ -827,35 +986,27 @@ EOF
             }
         },
         {
-            "tag": "♻️ 自动选择",
-            "type": "urltest",
-            "outbounds": [
-                "$shadowtls_tag",
-                "$hy2_tag",
-                "$reality_tag"
-            ],
-            "url": "http://www.gstatic.com/generate_204",
-            "interval": "10m",
-            "tolerance": 50
+            "tag": "$anytls_tag",
+            "type": "anytls",
+            "server": "$server_ip",
+            "server_port": $anytls_port,
+            "password": "$anytls_password",
+            "tls": {
+                "enabled": true,
+                "server_name": "$anytls_server_name",
+                "insecure": true
+            }
         },
         {
-            "tag": "GLOBAL",
-            "type": "selector",
-            "outbounds": [
-                "🚀 节点选择",
-                "♻️ 自动选择",
-                "$shadowtls_tag",
-                "$hy2_tag",
-                "$reality_tag"
-            ],
-            "default": "🚀 节点选择"
-        },
-        {
-            "tag": "🎯 全球直连",
+            "tag": "🌏 全球直连",
             "type": "direct"
         }
     ],
     "route": {
+        "default_domain_resolver": {
+            "server": "ali-dns",
+            "strategy": "ipv4_only"
+        },
         "auto_detect_interface": true,
         "final": "🐠 漏网之鱼",
         "rules": [
@@ -871,7 +1022,7 @@ EOF
                         "protocol": "dns"
                     },
                     {
-                        "source_port": 53
+                        "port": 53
                     }
                 ],
                 "action": "hijack-dns"
@@ -879,17 +1030,25 @@ EOF
             {
                 "domain": [
                     "clash.razord.top",
+                    "captive.apple.com",
                     "yacd.metacubex.one",
                     "yacd.haishan.me",
                     "d.metacubex.one"
                 ],
-                "outbound": "🎯 全球直连"
+                "outbound": "🌏 全球直连"
             },
             {
                 "domain": [
                     "333bbb777bbb.com",
                     "jads.co",
-                    "u001.25img.com"
+		            "gifshow.com",
+                    "ssp-sdk-config.uc.com",
+                    "xlog.jd.com",
+                    "dsp-x.jd.com",
+                    "partner.uc.cn",
+                    "sm.cn",
+                    "u001.25img.com",
+                    "fans.91selfie.com"
                 ],
                 "action": "reject"
             },
@@ -900,25 +1059,26 @@ EOF
                 ],
                 "action": "reject"
             },
+			{
+                "ip_cidr": [
+                    "172.67.143.71/32",
+                    "104.21.95.54/32"
+                ],
+                "outbound": "🎦 self-Videos"
+            },
             {
                 "ip_cidr": [
+                    "1.1.1.3",
                     "$server_ip",
-                    "192.168.100.1",
-                    "1.1.1.1",
-                    "1.1.1.3"
                 ],
-                "outbound": "🎯 全球直连"
+                "outbound": "🌏 全球直连"
             }, 
-            {
-                "rule_set": "APTV",
-                "outbound": "📹 APTV"
-            },
             {
                 "rule_set": [
                     "geosite-private",
                     "geoip-private"
                 ],
-                "outbound": "🎯 全球直连"
+                "outbound": "🌏 全球直连"
             },
             {
                 "rule_set": [
@@ -926,7 +1086,11 @@ EOF
                     "geosite-cn",
                     "my-direct"
                 ],
-                "outbound": "🎯 全球直连"
+                "outbound": "🌏 全球直连"
+            },
+			{
+                "rule_set": "APTV",
+                "outbound": "📹 APTV"
             },
             {
                 "rule_set": "geosite-github",
@@ -950,13 +1114,25 @@ EOF
                 ],
                 "outbound": "🎥 Netflix"
             },
+			{
+                "rule_set": [
+                    "geosite-youtube"
+                ],
+                "outbound": "🔥 YouTube"
+            },
+            {
+                "rule_set": [
+                    "geosite-openAI"
+                ],
+                "outbound": "🤖 openAI"
+            },
             {
                 "rule_set": "geosite-geolocation-!cn",
                 "outbound": "🚀 节点选择"
             },
             {
                 "clash_mode": "direct",
-                "outbound": "🎯 全球直连"
+                "outbound": "🌏 全球直连"
             },
             {
                 "clash_mode": "global",
@@ -1068,6 +1244,20 @@ EOF
                 "format": "source",
                 "url": "https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/stream-link.json",
                 "download_detour": "🚀 节点选择"
+            },
+			{
+                "tag": "geosite-youtube",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/youtube.srs",
+                "download_detour": "🚀 节点选择"
+            },
+            {
+                "tag": "geosite-openAI",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/category-ai-!cn.srs",
+                "download_detour": "🚀 节点选择"
             }
         ]
     }
@@ -1142,8 +1332,10 @@ uninstall_singbox() {
     cd /root
     rm -f /etc/systemd/system/sing-box.service
     rm -f /root/sing-box/sb_config_server.json /root/sing-box/sing-box /root/sing-box/sbox.sh
-    rm -f /usr/bin/sb /root/sing-box/self-cert/private.key /root/sing-box/self-cert/cert.pem /root/sing-box/config
-    rm -rf /root/sing-box/self-cert/ /root/sing-box/
+    rm -f /usr/bin/sb /root/sing-box/config
+	rm -f /root/sing-box/hy2-cert/private.key /root/sing-box/hy2-cert/cert.pem
+	rm -f /root/sing-box/anytls-cert/private.key /root/sing-box/anytls-cert/cert.pem
+    rm -rf /root/sing-box/hy2-cert/ /root/sing-box/anytls-cert/ /root/sing-box/
     warning "卸载完成"
 }
 
@@ -1311,7 +1503,7 @@ disable_hy2hopping() {
 }
 
 #--------------------------------
-print_with_delay "Reality Hysteria2 ShadowTLS 三合一脚本 by Arthur&Elam" 0.01
+print_with_delay "Reality Hysteria2 ShadowTLS Anytls 四合一脚本 by Arthur" 0.02
 warning "Red Hat系列操作系统运行本脚本,参考以下关闭selinux（RHEL、CentOS、Rocky等）"
 warning "sed -i 's/SELINUX=enforcing/SELINUX=permissive/g' /etc/selinux/config"
 warning "并重启操作系统,再运行本脚本"
@@ -1391,7 +1583,7 @@ reality_uuid=$(/root/sing-box/sing-box generate uuid)
 short_id=$(/root/sing-box/sing-box generate rand --hex 8)
 info "生成的uuid为:  $reality_uuid"
 info "生成的短id为:  $short_id"
-reality_port=$(generate_port "VISION_REALITY" 443)
+reality_port=$(generate_port "VISION_REALITY" 10443)
 info "生成的端口号为: $reality_port"
 reality_server_name="itunes.apple.com"
 while :; do
@@ -1417,8 +1609,8 @@ hy2_port=$(generate_port "HYSTERIA2" 18443)
 info "生成的端口号为: $hy2_port"
 read -p "输入自签证书域名 (默认为: bing.com): " hy2_server_name
 hy2_server_name=${hy2_server_name:-bing.com}
-mkdir -p /root/sing-box/self-cert/ && openssl ecparam -genkey -name prime256v1 -out /root/sing-box/self-cert/private.key && openssl req -new -x509 -days 36500 -key /root/sing-box/self-cert/private.key -out /root/sing-box/self-cert/cert.pem -subj "/CN=${hy2_server_name}"
-info "自签证书生成完成,保存于/root/sing-box/self-cert/"
+mkdir -p /root/sing-box/hy2-cert/ && openssl ecparam -genkey -name prime256v1 -out /root/sing-box/hy2-cert/private.key && openssl req -new -x509 -days 36500 -key /root/sing-box/hy2-cert/private.key -out /root/sing-box/hy2-cert/cert.pem -subj "/CN=${hy2_server_name}"
+info "自签证书生成完成,保存于/root/sing-box/hy2-cert/"
 echo ""
 echo ""
 # shadowtls
@@ -1432,6 +1624,27 @@ read -p "输入握手域名 (默认为: captive.apple.com): " shadowtls_handshak
 shadowtls_handshake_server=${shadowtls_handshake_server:-captive.apple.com}
 echo ""
 echo ""
+
+# anytls
+warning "开始配置anytls..."
+anytls_password=$(/root/sing-box/sing-box generate rand --hex 16)
+info "anytls的密码: $anytls_password"
+anytls_port=$(generate_port "anytls" 28443)
+info "生成的端口号为: $anytls_port"
+read -p "输入anytls用户名 (默认为: bendolu): " anytls_name
+anytls_name=${anytls_name:-bendolu}
+info "生成的用户名为: $anytls_name"
+read -p "输入anytls自签证书域名 (默认为: captive.apple.com): " anytls_server_name
+anytls_server_name=${anytls_server_name:-captive.apple.com}
+
+# 创建证书目录并生成自签证书
+mkdir -p /root/sing-box/anytls-cert/ && \
+openssl ecparam -genkey -name prime256v1 -out /root/sing-box/anytls-cert/private.key && \
+openssl req -new -x509 -days 36500 -key /root/sing-box/anytls-cert/private.key -out /root/sing-box/anytls-cert/cert.pem -subj "/CN=${anytls_server_name}"
+info "自签证书生成完成,保存于/root/sing-box/anytls-cert/"
+echo ""
+echo ""
+
 #get ip
 server_ip=$(curl -s4m8 ip.sb -k) || server_ip=$(curl -s6m8 ip.sb -k)
 flag=$(prefix_tag_ip)
@@ -1460,6 +1673,12 @@ SHADOWTLS_PORT='$shadowtls_port'
 SHADOWTLS_METHOD='$shadowtls_method'
 SHADOWTLS_PASSWORD='$shadowtls_password'
 SHADOWTLS_HANDSHAKE_SERVER='$shadowtls_handshake_server'
+# Anytls
+ANYTLS_PORT='$anytls_port'
+ANYTLS_NAME='$anytls_name'
+ANYTLS_PASSWORD='$anytls_password'
+ANYTLS_SERVER_NAME='$anytls_server_name'
+ANYTLS_INSECURE=TRUE
 EOF
 
 #generate singbox server config
@@ -1469,6 +1688,15 @@ cat >/root/sing-box/sb_config_server.json <<EOF
     "disabled": false,
     "level": "trace",
     "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "type": "local",
+        "tag": "local"
+      }
+    ],
+    "strategy": "ipv4_only"
   },
   "inbounds": [
     {
@@ -1556,15 +1784,39 @@ cat >/root/sing-box/sb_config_server.json <<EOF
         "alpn": [
           "h3"
         ],
-        "certificate_path": "/root/sing-box/self-cert/cert.pem",
-        "key_path": "/root/sing-box/self-cert/private.key"
+        "certificate_path": "/root/sing-box/hy2-cert/cert.pem",
+        "key_path": "/root/sing-box/hy2-cert/private.key"
+      }
+    },
+	    {
+      "sniff": true,
+      "sniff_override_destination": true,
+      "type": "anytls",
+      "tag": "anytls-in",
+      "listen": "::",
+      "listen_port": $anytls_port,
+      "users": [
+        {
+          "name": "$anytls_name",
+          "password": "$anytls_password"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "server_name": "$anytls_server_name",
+        "certificate_path": "/root/sing-box/anytls-cert/cert.pem",
+        "key_path": "/root/sing-box/anytls-cert/private.key"
       }
     }
   ],
   "outbounds": [
     {
       "type": "direct",
-      "tag": "direct"
+      "tag": "direct",
+      "domain_resolver": {
+        "server": "local",
+        "strategy": "ipv4_only"
+      }
     }
   ],
   "route": {
