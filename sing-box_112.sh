@@ -1585,7 +1585,7 @@ info "生成的uuid为:  $reality_uuid"
 info "生成的短id为:  $short_id"
 reality_port=$(generate_port "VISION_REALITY" 10443)
 info "生成的端口号为: $reality_port"
-reality_server_name="captive.apple.com"
+reality_server_name="itunes.apple.com"
 while :; do
     read -p "请输入需要偷取证书的网站，必须支持 TLS 1.3 and HTTP/2 (默认: $reality_server_name): " input_server_name
     reality_server_name=${input_server_name:-$reality_server_name}
@@ -1797,7 +1797,7 @@ cat >/root/sing-box/sb_config_server.json <<EOF
       "listen_port": $anytls_port,
       "users": [
         {
-          "name": $anytls_name,
+          "name": "$anytls_name",
           "password": "$anytls_password"
         }
       ],
