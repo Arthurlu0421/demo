@@ -341,7 +341,7 @@ show_client_configuration() {
     echo "服务器ip: $server_ip"
     echo "端口号: $hy2_port"
     if [ "$ishopping" = "FALSE" ]; then
-        echo "端口跳跃未开启"
+        echo "端口跳跃:未开启"
     else
         echo "端口跳跃范围为：$hopping_range"
     fi
@@ -379,7 +379,7 @@ show_client_configuration() {
     echo "端口号: $anytls_port"
     echo "用户: $anytls_name"
     echo "密码: $anytls_password"
-    echo "域名: $anytls_handshake_server"
+    echo "域名: $anytls_server_name"
 	echo "跳过证书验证（允许不安全）: True"
     echo "------------------------------------"
 
