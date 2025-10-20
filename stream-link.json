@@ -4,23 +4,24 @@
   "rules": [
     {
       "domain": [
-        "content.stream-link.org",
-        "error.stream-link.org",
-        "sc2025.stream-link.org"
+        "v.lzcdn25.com",
+        "lzdown27.com",
+        "alzcname.com"
       ]
     },
     {
       "domain_suffix": [
-        "stream-link.org",
-        "iill.top",
-        "dbankcdn.cn",
-        "163189.xyz"
+        "v.lzcdn25.com",
+        "lzdown27.com",
+        "alzcname.com"
       ]
     },
     {
       "domain_keyword": [
-        "aptv",
-        "stream-link"
+        "alzcname",
+        "cdnlz",
+        "lzdown",
+        "lzcdn"
       ]
     },
     {
