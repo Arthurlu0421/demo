@@ -1,4 +1,6 @@
 #!/bin/bash
+# bash <(curl -fsSL https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/sing-box.sh)
+
 
 # ==================================================
 # 颜色与基础变量
