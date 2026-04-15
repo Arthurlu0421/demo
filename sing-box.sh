@@ -1810,7 +1810,19 @@ cat >/root/sing-box/sb_config_server.json <<EOF
     ],
     "route": {
         "auto_detect_interface": true,
-        "final": "direct"
+        "final": "direct",
+        "rules": [
+            {
+                "inbound": [
+                    "vless-in",
+                    "shadowtls-in",
+                    "hy2-in",
+                    "anytls-in"
+                ],
+                "action": "sniff",
+                "override_destination": true
+            }
+        ]
     }
 }
 EOF
