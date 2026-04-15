@@ -1699,8 +1699,6 @@ cat >/root/sing-box/sb_config_server.json <<EOF
     },
     "inbounds": [
         {
-            "sniff": true,
-            "sniff_override_destination": true,
             "type": "vless",
             "tag": "vless-in",
             "listen": "::",
@@ -1728,8 +1726,6 @@ cat >/root/sing-box/sb_config_server.json <<EOF
             }
         },
         {
-            "sniff": true,
-            "sniff_override_destination": true,
             "type": "shadowtls",
             "tag": "shadowtls-in",
             "listen": "::",
@@ -1748,8 +1744,6 @@ cat >/root/sing-box/sb_config_server.json <<EOF
             "strict_mode": true
         },
         {
-            "sniff": true,
-            "sniff_override_destination": true,
             "type": "shadowsocks",
             "tag": "shadowsocks-in",
             "listen": "127.0.0.1",
@@ -1767,8 +1761,6 @@ cat >/root/sing-box/sb_config_server.json <<EOF
             }
         },
         {
-            "sniff": true,
-            "sniff_override_destination": true,
             "type": "hysteria2",
             "tag": "hy2-in",
             "listen": "::",
@@ -1788,8 +1780,6 @@ cat >/root/sing-box/sb_config_server.json <<EOF
             }
         },
         {
-            "sniff": true,
-            "sniff_override_destination": true,
             "type": "anytls",
             "tag": "anytls-in",
             "listen": "::",
