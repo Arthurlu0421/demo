@@ -1819,8 +1819,7 @@ cat >/root/sing-box/sb_config_server.json <<EOF
                     "hy2-in",
                     "anytls-in"
                 ],
-                "action": "sniff",
-                "override_destination": true
+                "action": "sniff"
             }
         ]
     }
