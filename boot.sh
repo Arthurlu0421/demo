@@ -25,11 +25,11 @@ sleep 3
 
 echo "✅ 网络连接成功"
 
-DOWNLOAD_BASE_URL="https://gitee.com/idootop/artifacts/releases/download/open-xiaoai-client"
+DOWNLOAD_BASE_URL="https://github.com/Arthurlu0421/demo/blob/main"
 
 
 WORK_DIR="/data/open-xiaoai"
-CLIENT_BIN="$WORK_DIR/client"
+CLIENT_BIN="$WORK_DIR/client_self"
 SERVER_ADDRESS="ws://127.0.0.1:4399" # 默认不会连接到任何 server
 
 if [ ! -d "$WORK_DIR" ]; then
@@ -37,10 +37,10 @@ if [ ! -d "$WORK_DIR" ]; then
 fi
 
 if [ ! -f "$CLIENT_BIN" ]; then
-    echo "🔥 正在下载 Client 端补丁程序..."
-    curl -L -# -o "$CLIENT_BIN" "$DOWNLOAD_BASE_URL/client"
+    echo "🔥 正在下载 Client_self 端补丁程序..."
+    curl -L -# -o "$CLIENT_BIN" "$DOWNLOAD_BASE_URL/client_self"
     chmod +x "$CLIENT_BIN"
-    echo "✅ Client 端补丁程序下载完毕"
+    echo "✅ Client_self 端补丁程序下载完毕"
 fi
 
 
@@ -48,8 +48,8 @@ if [ -f "$WORK_DIR/server.txt" ]; then
     SERVER_ADDRESS=$(cat "$WORK_DIR/server.txt")
 fi
 
-echo "🔥 正在启动 Client 端补丁程序..."
+echo "🔥 正在启动 Client_self 端补丁程序..."
 
-kill -9 `ps|grep "open-xiaoai/client"|grep -v grep|awk '{print $1}'` > /dev/null 2>&1 || true
+kill -9 `ps|grep "open-xiaoai/client_self"|grep -v grep|awk '{print $1}'` > /dev/null 2>&1 || true
 
 "$CLIENT_BIN" "$SERVER_ADDRESS" > /dev/null 2>&1
