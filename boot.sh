@@ -25,8 +25,7 @@ sleep 3
 
 echo "✅ 网络连接成功"
 
-DOWNLOAD_BASE_URL="https://github.com/Arthurlu0421/demo/blob/main"
-
+DOWNLOAD_BASE_URL="https://raw.githubusercontent.com/Arthurlu0421/demo/refs/heads/main/"
 
 WORK_DIR="/data/open-xiaoai"
 CLIENT_BIN="$WORK_DIR/client_self"
